@@ -1,0 +1,45 @@
+{
+  "id": "core",
+  "version": "0.1.0",
+  "status": "engineering-foundation",
+  "controls": [
+    {
+      "id": "CORE-000",
+      "check": "core.applicability",
+      "title": "Reviewed rule-pack applicability",
+      "severity": "error"
+    },
+    {
+      "id": "CORE-00A",
+      "check": "core.personal-data-scope",
+      "title": "Personal-data processing scope",
+      "severity": "review"
+    },
+    {
+      "id": "CORE-001",
+      "check": "core.identity",
+      "title": "Project owner and privacy contact",
+      "severity": "error"
+    },
+    {
+      "id": "CORE-002",
+      "check": "core.privacy-notice",
+      "title": "Public privacy notice",
+      "severity": "error"
+    },
+    {
+      "id": "CORE-003",
+      "check": "core.activities",
+      "title": "Complete processing activities",
+      "severity": "error"
+    },
+    {
+      "id": "CORE-004",
+      "check": "core.risk-review",
+      "title": "Sensitive and significant automated processing review",
+      "severity": "review"
+    }
+  ],
+  "sourceVerifiedAt": "2026-08-31",
+  "legalReviewStatus": "not-reviewed"
+}

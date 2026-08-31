@@ -1,0 +1,44 @@
+{
+  "id": "gdpr",
+  "version": "0.1.0",
+  "status": "initial-unreviewed",
+  "limitations": "Engineering readiness prompts only. Applicability, exceptions, ePrivacy and member-state law require qualified review.",
+  "sources": [
+    "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+    "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_en"
+  ],
+  "controls": [
+    {
+      "id": "GDPR-001",
+      "check": "gdpr.rights",
+      "title": "Data-subject rights channel",
+      "severity": "error"
+    },
+    {
+      "id": "GDPR-002",
+      "check": "gdpr.withdrawal",
+      "title": "Withdrawal for consent-based activities",
+      "severity": "error"
+    },
+    {
+      "id": "GDPR-003",
+      "check": "gdpr.transfers",
+      "title": "International transfer mechanism",
+      "severity": "error"
+    },
+    {
+      "id": "GDPR-004",
+      "check": "gdpr.legitimate-interests",
+      "title": "Legitimate-interests assessment review",
+      "severity": "error"
+    },
+    {
+      "id": "GDPR-005",
+      "check": "gdpr.automated-decisions",
+      "title": "Significant automated-decision explanation and safeguards",
+      "severity": "review"
+    }
+  ],
+  "sourceVerifiedAt": "2026-08-31",
+  "legalReviewStatus": "not-reviewed"
+}

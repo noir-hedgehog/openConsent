@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "example-ai-assistant",
+    "name": "Example AI Assistant",
+    "version": "0.1.0",
+    "publicUrl": "https://example.com",
+    "owner": {
+      "name": "Example Organisation"
+    },
+    "privacyContact": {
+      "email": "privacy@example.com",
+      "url": "https://example.com/privacy/contact"
+    }
+  },
+  "jurisdictions": [
+    "gdpr",
+    "ccpa"
+  ],
+  "applicability": {
+    "gdpr": {
+      "status": "in-scope",
+      "rationale": "The example service is intentionally offered to people in the EEA.",
+      "role": "controller",
+      "decidedAt": "2026-08-31",
+      "reviewer": "Example privacy owner"
+    },
+    "ccpa": {
+      "status": "in-scope",
+      "rationale": "Example assumption: the business meets a statutory threshold and serves California consumers.",
+      "role": "business",
+      "decidedAt": "2026-08-31",
+      "reviewer": "Example privacy owner"
+    }
+  },
+  "creation": {
+    "origin": "ai-assisted",
+    "tools": [
+      {
+        "name": "AI coding assistant",
+        "usage": "code and documentation drafts with human review"
+      }
+    ]
+  },
+  "runtime": {
+    "aiEnabled": true,
+    "aiComponents": [
+      {
+        "id": "support-assistant",
+        "kind": "agent",
+        "purpose": "answer user support questions",
+        "provider": "Example model provider",
+        "activityIds": [
+          "support-chat"
+        ]
+      }
+    ]
+  },
+  "notices": {
+    "privacy": {
+      "url": "https://example.com/privacy",
+      "version": "2026-08",
+      "reviewedAt": "2026-08-31"
+    },
+    "collection": {
+      "url": "https://example.com/privacy/collection",
+      "version": "2026-08",
+      "reviewedAt": "2026-08-31"
+    }
+  },
+  "rights": {
+    "gdpr": {
+      "url": "https://example.com/privacy/request",
+      "methods": [
+        {
+          "type": "webform",
+          "value": "https://example.com/privacy/request"
+        }
+      ]
+    },
+    "ccpa": {
+      "url": "https://example.com/privacy/request",
+      "methods": [
+        {
+          "type": "webform",
+          "value": "https://example.com/privacy/request"
+        },
+        {
+          "type": "email",
+          "value": "privacy@example.com"
+        }
+      ]
+    }
+  },
+  "gpc": {
+    "honored": true,
+    "statusUrl": "https://example.com/privacy/choices"
+  },
+  "activities": [
+    {
+      "id": "support-chat",
+      "name": "AI-assisted support",
+      "purpose": "Provide support requested by the user",
+      "dataCategories": [
+        "account identifier",
+        "support message"
+      ],
+      "legalBasis": "contract",
+      "retention": {
+        "period": "30 days after ticket closure",
+        "rationale": "Resolve follow-up questions and detect support failures"
+      },
+      "recipients": [
+        "hosting provider",
+        "model processor"
+      ],
+      "transfers": [
+        {
+          "destination": "United States",
+          "outsideEea": true,
+          "safeguard": "scc"
+        }
+      ],
+      "sensitiveData": false,
+      "automatedDecision": {
+        "significant": false
+      },
+      "sale": false,
+      "sharing": false
+    },
+    {
+      "id": "optional-analytics",
+      "name": "Optional product analytics",
+      "purpose": "Understand aggregate feature use",
+      "dataCategories": [
+        "pseudonymous device identifier",
+        "feature events"
+      ],
+      "legalBasis": "consent",
+      "retention": {
+        "period": "90 days",
+        "rationale": "Compare product changes across monthly cohorts"
+      },
+      "recipients": [
+        "analytics processor"
+      ],
+      "consent": {
+        "withdrawal": {
+          "method": "webform",
+          "value": "https://example.com/privacy/choices"
+        }
+      },
+      "transfers": [],
+      "sensitiveData": false,
+      "automatedDecision": {
+        "significant": false
+      },
+      "sale": false,
+      "sharing": false
+    }
+  ],
+  "personalData": {
+    "processed": true,
+    "rationale": "The service processes account identifiers and support messages.",
+    "decidedAt": "2026-08-31",
+    "reviewer": "Example privacy owner"
+  }
+}

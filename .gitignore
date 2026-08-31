@@ -1,0 +1,6 @@
+node_modules/
+coverage/
+assessment.json
+transparency.json
+.DS_Store
+*.log

@@ -1,0 +1,48 @@
+{
+  "id": "ccpa",
+  "version": "0.1.0",
+  "status": "initial-unreviewed",
+  "limitations": "Engineering readiness prompts only. Business applicability, exceptions and current California regulations require qualified review.",
+  "sources": [
+    "https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?division=3.&chapter=20.&part=4.&lawCode=CIV&title=1.81.5.",
+    "https://cppa.ca.gov/pdf/20260101_ccpa_statute.pdf",
+    "https://cppa.ca.gov/regulations/pdf/ccpa_statute_eff_20260101.pdf",
+    "https://cppa.ca.gov/regulations/cpi_adjustment.html",
+    "https://cppa.ca.gov/regulations/",
+    "https://oag.ca.gov/privacy/ccpa/gpc"
+  ],
+  "controls": [
+    {
+      "id": "CCPA-001",
+      "check": "ccpa.notice-at-collection",
+      "title": "Notice at collection",
+      "severity": "error"
+    },
+    {
+      "id": "CCPA-002",
+      "check": "ccpa.rights",
+      "title": "Consumer-rights request methods",
+      "severity": "error"
+    },
+    {
+      "id": "CCPA-003",
+      "check": "ccpa.sale-share-gpc",
+      "title": "Sale/share opt-out and GPC",
+      "severity": "error"
+    },
+    {
+      "id": "CCPA-004",
+      "check": "ccpa.sensitive-limit",
+      "title": "Limit use of sensitive personal information",
+      "severity": "error"
+    },
+    {
+      "id": "CCPA-005",
+      "check": "ccpa.minors",
+      "title": "Known minor sale/share opt-in review",
+      "severity": "error"
+    }
+  ],
+  "sourceVerifiedAt": "2026-08-31",
+  "legalReviewStatus": "not-reviewed"
+}
