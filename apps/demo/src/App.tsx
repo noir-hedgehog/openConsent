@@ -21,6 +21,7 @@ declare global {
     __openConsentDemoPermissions?: Record<Purpose, { allowed: boolean; generation: number }>;
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    __openConsentGoogleInitialized?: boolean;
   }
 }
 
@@ -117,6 +118,12 @@ export default function App() {
     window.__openConsentDemoPermissions ??= { analytics: { allowed: false, generation: 0 }, 'sale-sharing': { allowed: false, generation: 0 } };
     window.__openConsentDemoPermissions[purpose] = { allowed: false, generation: (prior?.generation ?? 0) + 1 };
     const hadResource = Boolean(document.getElementById(`oc-injected-${purpose}`)) || cookiePresent(cookieName);
+    const configuredGoogleId = purpose === 'analytics' ? googleAnalyticsId : googleAdsId;
+    if (configuredGoogleId && window.gtag) {
+      window.gtag('consent', 'update', purpose === 'analytics'
+        ? { analytics_storage: 'denied' }
+        : { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+    }
     document.getElementById(`oc-injected-${purpose}`)?.remove();
     const secure = location.protocol === 'https:' ? '; Secure' : '';
     document.cookie = `${cookieName}=; Max-Age=0; path=${cookiePath()}; SameSite=Lax${secure}`;
@@ -136,6 +143,21 @@ export default function App() {
     window.__openConsentDemoPermissions[purpose] = { allowed: true, generation };
     script.id = `oc-injected-${purpose}`;
     const configuredGoogleId = purpose === 'analytics' ? googleAnalyticsId : googleAdsId;
+    if (configuredGoogleId) {
+      window.dataLayer ??= [];
+      window.gtag ??= (...args: unknown[]) => window.dataLayer?.push(args);
+      if (!window.__openConsentGoogleInitialized) {
+        window.gtag('js', new Date());
+        window.gtag('consent', 'default', {
+          analytics_storage: 'denied', ad_storage: 'denied',
+          ad_user_data: 'denied', ad_personalization: 'denied', wait_for_update: 500,
+        });
+        window.__openConsentGoogleInitialized = true;
+      }
+      window.gtag('consent', 'update', purpose === 'analytics'
+        ? { analytics_storage: 'granted' }
+        : { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+    }
     script.src = configuredGoogleId
       ? `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(configuredGoogleId)}`
       : `${import.meta.env.BASE_URL}vendors/${file}`;
@@ -145,10 +167,7 @@ export default function App() {
       const guard = window.__openConsentDemoPermissions?.[purpose];
       if (!guard?.allowed || guard.generation !== generation) return;
       if (configuredGoogleId) {
-        window.dataLayer ??= [];
-        window.gtag ??= (...args: unknown[]) => window.dataLayer?.push(args);
-        window.gtag('js', new Date());
-        window.gtag('config', configuredGoogleId, purpose === 'analytics' ? { anonymize_ip: true } : {});
+        window.gtag?.('config', configuredGoogleId, purpose === 'analytics' ? { anonymize_ip: true } : {});
         addEvent('google_tag_configured', `${purpose} · ${configuredGoogleId} · consent gate active`);
       }
       setCookieState({ analytics: cookiePresent('oc_demo_analytics'), ads: cookiePresent('oc_demo_ads') });
