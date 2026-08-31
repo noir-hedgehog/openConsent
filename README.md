@@ -68,6 +68,8 @@ pnpm --dir apps/demo build
 
 The public website intentionally leaves these variables unset and uses first-party fixtures, so visiting the demo does not send data to Google.
 
+For GitHub Pages, add repository **Variables** under `Settings → Secrets and variables → Actions` named `OPENCONSENT_GA_MEASUREMENT_ID` (`G-...`) and/or `OPENCONSENT_GOOGLE_ADS_ID` (`AW-...`). The Pages workflow maps them to the Vite variables above; changing a variable requires a new workflow run.
+
 These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them. The website is deployed from this repository through GitHub Actions and GitHub Pages; no ChatGPT Sites runtime is required.
 
 openConsent does not yet offer the same production capability as a paid CMP. The [paid CMP comparison](docs/PAID_CMP_COMPARISON.md) separates current implementation, demo behavior, and missing runtime/enterprise features.
