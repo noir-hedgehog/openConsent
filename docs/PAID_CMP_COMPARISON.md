@@ -8,17 +8,17 @@ openConsent v0.1 does **not** provide the same capability as consentmanager and 
 
 openConsent is currently an open compliance engineering layer: versioned manifests, readable rule packs, deterministic CLI/CI checks, transparency cards, and reproducible unsigned assessments. consentmanager is a production runtime CMP SaaS that serves consent interfaces to visitors, controls tags, stores audit records, scans websites, integrates with advertising standards, and provides operational reporting.
 
-The runtime SDKs and demo added in `0.2.0-alpha.1` establish a shared decision protocol and integration surface. They remain integration starters. They do not provide a hosted evidence service, signed receipts, identity binding, tag pre-blocking, vendor discovery, or a legal guarantee.
+The runtime SDKs and website demo establish a shared decision protocol and integration surface. They remain integration starters. The site now demonstrates explicit managed-tag pre-blocking, Cookie creation after permission, withdrawal cleanup, and GPC override. It does not provide a hosted evidence service, signed receipts, identity binding, automatic blocking, vendor discovery, or a legal guarantee.
 
 ## Capability matrix
 
 | Capability | consentmanager | openConsent today |
 | --- | --- | --- |
 | GDPR and CCPA/CPRA | Runtime messages, jurisdiction configuration, opt-in and opt-out flows | Selectable declaration checks and review gates |
-| Consent banner and preference center | Hosted, configurable, multilingual interface | Interactive demo only; React/Vue headless starters |
+| Consent banner and preference center | Hosted, configurable, multilingual interface | First-visit website demo with equal reject/accept and per-purpose choices; no tenant configuration or localisation service |
 | Consent withdrawal and audit proof | Encrypted consent protocol / audit trail | Unsigned in-memory demo receipt; no production store |
 | Cookie, pixel, and vendor scanning | Recurring crawler and discovered-domain workflow | Not implemented |
-| Script, iframe, and cookie control | Manual and automatic blocking | `ConsentGate` can delay component rendering only |
+| Script, iframe, and cookie control | Manual and automatic blocking | Demonstrated for explicitly registered local scripts and known demo Cookies; no automatic discovery or third-party coverage |
 | GPC and privacy signals | Runtime privacy-signal support | Core/Express/Spring alpha evaluators; no account/device reconciliation |
 | IAB TCF and IAB GPP | Supported on eligible plans | Not implemented |
 | Google Consent Mode v2 | Supported on current paid plans | Not implemented |
@@ -35,9 +35,9 @@ The official comparison page listed Starter at €23/month for one website/app a
 
 ## Build path to production parity
 
-1. **0.2 alpha:** shared decisions, GPC parsing, React/Vue/Express/Spring starters, and a transparent interactive demo.
+1. **0.2/0.3 alpha:** shared decisions, GPC parsing, React/Vue/Express/Spring starters, a transparent interactive demo, and explicit managed-tag pre-blocking.
 2. **0.3:** authoritative receipt service, withdrawal events, downstream propagation, version invalidation, accessibility and security tests.
-3. **0.4:** tag and cookie discovery, manual pre-blocking, Google Consent Mode, vendor catalog, and deployment monitoring.
+3. **0.4:** tag and Cookie discovery, production pre-blocking adapters, Google Consent Mode, vendor catalog, and deployment monitoring.
 4. **0.5+:** IAB TCF/GPP, analytics, multi-tenant governance, key rotation, incident controls, and production legal/security review.
 
 openConsent should keep public rules, self-hosting, reproducible evidence, and AI/agent permission decisions as its differentiators instead of copying a closed CMP screen-for-screen.

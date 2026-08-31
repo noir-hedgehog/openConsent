@@ -24,4 +24,7 @@ jobs:
       - run: node --test
       - run: node ./src/cli.mjs check ./examples/openconsent.json
       - run: pnpm --dir apps/demo install --frozen-lockfile
+      - run: pnpm --dir apps/demo lint
       - run: pnpm --dir apps/demo build
+        env:
+          VITE_BASE_PATH: /openConsent/

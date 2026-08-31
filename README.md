@@ -4,6 +4,8 @@
 
 openConsent is an open, developer-first policy and evidence layer for projects built with or powered by AI. It turns privacy assumptions into a versioned project manifest, checks that manifest against transparent rule packs, and produces a public transparency card and an unsigned, reproducible assessment record.
 
+**Official website:** [noir-hedgehog.github.io/openConsent](https://noir-hedgehog.github.io/openConsent/)
+
 The first rule packs focus on GDPR readiness and CCPA/CPRA readiness. They are selectable because applicability depends on the project, organisation, users, and processing activity.
 
 > openConsent is compliance engineering infrastructure, not a law firm, legal opinion, certification, or guarantee of compliance. It finds missing declarations and evidence; qualified people remain responsible for applicability and legal conclusions.
@@ -47,16 +49,16 @@ node ./src/cli.mjs verify ./examples/openconsent.json ./assessment.json
 node --test
 ```
 
-## Interactive runtime alpha
+## Official website and interactive runtime alpha
 
-The repository now includes an interactive GDPR/CCPA runtime lab in [`apps/demo`](apps/demo) and source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter).
+The repository includes its official website and interactive GDPR/CCPA runtime demo in [`apps/demo`](apps/demo), plus source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter). The first-visit Banner keeps optional managed scripts inert. Explicit permission injects safe local fixtures and writes visible demo Cookies; rejection or withdrawal removes those managed resources and known demo Cookies.
 
 ```bash
 pnpm --dir apps/demo install
 pnpm --dir apps/demo dev
 ```
 
-These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them.
+These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them. The website is deployed from this repository through GitHub Actions and GitHub Pages; no ChatGPT Sites runtime is required.
 
 openConsent does not yet offer the same production capability as a paid CMP. The [paid CMP comparison](docs/PAID_CMP_COMPARISON.md) separates current implementation, demo behavior, and missing runtime/enterprise features.
 
@@ -78,7 +80,7 @@ openConsent does not yet offer the same production capability as a paid CMP. The
 
 ## Product boundary
 
-openConsent v0.1 checks declared facts and creates evidence artifacts. It does not yet discover all runtime data flows, record a human-review decision, manage browser consent UI, fulfil privacy requests, sign receipts, or enforce model/tool calls. Those are explicit later milestones, so the public claims stay narrower than the implementation.
+openConsent checks declared facts and creates evidence artifacts. Its website demonstrates a browser consent UI and pre-blocking for explicitly managed tags, but the project does not yet discover all runtime data flows, provide a universal Cookie firewall, fulfil privacy requests, sign production receipts, or enforce model/tool calls. Those are explicit later milestones, so the public claims stay narrower than the implementation.
 
 ## Project status
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-alpha.1 - 2026-08-31
+
+- Replace the temporary ChatGPT Sites runtime with a repository-owned Vite site deployed through GitHub Pages.
+- Make the deployed site the project homepage and add a first-visit, equal-choice consent Banner.
+- Add real pre-blocking for two explicitly managed local scripts, visible demo Cookie creation, withdrawal cleanup, and GPC sale/share override.
+- Preserve the GitHub Pages project path on demo Cookies so they do not affect sibling Pages projects.
+- Distinguish initial denial from withdrawal and preserve initially observed GPC during runtime reset.
+
 ## 0.2.0-alpha.1 - 2026-08-31
 
 - Add an interactive GDPR/CCPA runtime lab with GPC, preference, decision, receipt, and propagation simulations.
@@ -26,6 +34,6 @@ All notable changes to openConsent are documented here. The project follows sema
 
 - Rule packs have not received independent legal review.
 - v0.1 checks declarations and evidence identity; it does not prove operating effectiveness or legal compliance.
-- Runtime consent/preference enforcement, rights-request orchestration, scanners, signed receipts and agent policy decisions remain roadmap items.
+- Production consent operations, rights-request orchestration, scanners, signed receipts and agent policy decisions remain roadmap items. The website only enforces its explicitly managed demo tags.
 
 [Unreleased]: https://github.com/noir-hedgehog/openConsent

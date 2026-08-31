@@ -42,11 +42,12 @@ export function evaluatePurpose(policy, snapshot, purposeId, options = {}) {
 export function createOpenConsent(options = {}) {
   const policy = options.policy ?? DEFAULT_POLICY;
   const now = options.now ?? defaultNow;
+  const initialGpc = Boolean(options.gpc);
   let snapshot = {
     subjectRef: options.subjectRef ?? 'browser-demo',
     revision: 0,
     choices: Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'unset'])),
-    signals: { gpc: Boolean(options.gpc) },
+    signals: { gpc: initialGpc },
     policyVersion: policy.policyVersion,
     updatedAt: now(),
     receiptId: null
@@ -91,7 +92,10 @@ export function createOpenConsent(options = {}) {
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
     setChoice(purposeId, choice, source) {
       if (!['granted', 'denied'].includes(choice)) throw new TypeError('choice must be granted or denied');
-      return mutate(choice === 'granted' ? 'save' : 'withdraw', { [purposeId]: choice }, source);
+      const purpose = policy.purposes.find((item) => item.id === purposeId);
+      if (!purpose || !purpose.optional || purpose.legalBasis !== 'consent') throw new TypeError('setChoice requires a known optional consent purpose');
+      const wasGranted = snapshot.choices?.[purposeId] === 'granted';
+      return mutate(choice === 'granted' ? 'save' : wasGranted ? 'withdraw' : 'deny', { [purposeId]: choice }, source);
     },
     rejectOptional(source) {
       const choices = Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'denied']));
@@ -108,7 +112,7 @@ export function createOpenConsent(options = {}) {
       return decision;
     },
     reset() {
-      snapshot = { ...snapshot, revision: 0, choices: Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'unset'])), signals: { gpc: false }, updatedAt: now(), receiptId: null };
+      snapshot = { ...snapshot, revision: 0, choices: Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'unset'])), signals: { gpc: initialGpc }, updatedAt: now(), receiptId: null };
       events.length = 0;
       publish();
     }
