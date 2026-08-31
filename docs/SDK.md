@@ -71,6 +71,10 @@ if (!decision.allowed()) throw new ResponseStatusException(HttpStatus.FORBIDDEN)
 
 Java compilation is not part of the current CI because the project runner does not include a JDK. The module targets Java 17, Spring Boot 3, and Jakarta Servlet; add Maven/JDK CI before publishing it to a registry.
 
+## Google Analytics 4 and Google Ads
+
+The browser adapter can load Google `gtag.js` only after the matching purpose is granted. Set `VITE_GA_MEASUREMENT_ID` for `optional-analytics` and `VITE_GOOGLE_ADS_ID` for `personalized-ads`; IDs stay in deployment configuration rather than the manifest. The public website uses first-party fixtures by default, while the integration panel shows the production pattern. Configure Google Consent Mode v2 defaults and conversion events according to the Google account and jurisdiction; openConsent does not claim that a tag configuration alone establishes legal compliance.
+
 ## Conformance
 
 `packages/protocol/conformance.json` is the initial cross-language fixture. Root tests cover default denial, withdrawal, GPC override, Express server parsing, and fail-closed middleware behavior.

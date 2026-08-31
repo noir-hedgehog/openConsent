@@ -37,7 +37,7 @@ flowchart LR
 
 ## Try it
 
-Node.js 20 or newer plus installed dependencies are required.
+Node.js 22.12 or newer plus installed dependencies are required for the website and current toolchain.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -51,7 +51,7 @@ node --test
 
 ## Official website and interactive runtime alpha
 
-The repository includes its official website and interactive GDPR/CCPA runtime demo in [`apps/demo`](apps/demo), plus source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter). The first-visit Banner keeps optional managed scripts inert. Explicit permission injects safe local fixtures and writes visible demo Cookies; rejection or withdrawal removes those managed resources and known demo Cookies.
+The repository includes its official developer website and interactive GDPR/CCPA runtime demo in [`apps/demo`](apps/demo), plus source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter). The site shows a mainstream-style Banner, a one-step integration path, an AI-assisted audit preview, and purpose-gated Google Analytics / Google Ads loading. The public build uses first-party fixtures by default; explicit permission injects safe local fixtures and writes visible demo Cookies, while a deployment can provide Google IDs through environment variables.
 
 ```bash
 pnpm --dir apps/demo install

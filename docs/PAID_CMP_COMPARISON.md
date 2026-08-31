@@ -15,13 +15,14 @@ The runtime SDKs and website demo establish a shared decision protocol and integ
 | Capability | consentmanager | openConsent today |
 | --- | --- | --- |
 | GDPR and CCPA/CPRA | Runtime messages, jurisdiction configuration, opt-in and opt-out flows | Selectable declaration checks and review gates |
-| Consent banner and preference center | Hosted, configurable, multilingual interface | First-visit website demo with equal reject/accept and per-purpose choices; no tenant configuration or localisation service |
+| Consent banner and preference center | Hosted, configurable, multilingual interface | Mainstream-style first-visit website demo with equal reject/accept and per-purpose choices; no tenant configuration or localisation service |
 | Consent withdrawal and audit proof | Encrypted consent protocol / audit trail | Unsigned in-memory demo receipt; no production store |
 | Cookie, pixel, and vendor scanning | Recurring crawler and discovered-domain workflow | Not implemented |
 | Script, iframe, and cookie control | Manual and automatic blocking | Demonstrated for explicitly registered local scripts and known demo Cookies; no automatic discovery or third-party coverage |
 | GPC and privacy signals | Runtime privacy-signal support | Core/Express/Spring alpha evaluators; no account/device reconciliation |
 | IAB TCF and IAB GPP | Supported on eligible plans | Not implemented |
-| Google Consent Mode v2 | Supported on current paid plans | Not implemented |
+| Google Analytics / Ads integration | Managed vendor templates and Consent Mode support | Real `gtag.js` loading path gated by purpose, configurable through deployment IDs; public demo uses first-party fixtures and does not send visitor data |
+| Google Consent Mode v2 | Supported on current paid plans | Integration pattern documented; production defaults, account configuration, and verification remain deployment responsibilities |
 | Mobile and platform SDKs | Mobile and additional platform integrations | React, Vue, Express, Spring Boot source starters only |
 | Reporting and optimization | Consent reporting and plan-dependent A/B optimization | Assessment counts; no traffic analytics |
 | Rights requests and legal documents | Plan-dependent tools and policy generator | Checks that a declared rights channel exists |

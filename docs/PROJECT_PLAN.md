@@ -44,7 +44,7 @@ The entry point is a Git-reviewable manifest plus CLI and CI. A hosted dashboard
 - A legal opinion, official certification, or signed human attestation.
 - Automated determination of whether a law applies.
 - Runtime scanning that proves the manifest is complete.
-- A browser CMP/banner or a data-subject request portal.
+- A hosted, multi-tenant CMP/banner service or a data-subject request portal. A basic, transparent banner demo is included in the official website.
 - Storage of identifiable consent receipts.
 - Cryptographic signer identity, transparency log, and runtime enforcement.
 

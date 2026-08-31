@@ -68,3 +68,15 @@ test('GPC simulation removes sale/share while leaving analytics active', async (
   await expect(page.locator('.tag-row').filter({ hasText: 'ads-demo.js' })).toContainText('CLEANED');
   await expect(page.locator('.tag-row').filter({ hasText: 'analytics-demo.js' })).toContainText('ACTIVE');
 });
+
+test('developer homepage exposes Google integration and AI audit preview', async ({ page }) => {
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: /Ship consent in one step/ })).toBeVisible();
+  await page.getByRole('button', { name: '拒绝可选', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Google Analytics 4/ })).toBeVisible();
+  await page.getByRole('button', { name: /Google Ads/ }).click();
+  await expect(page.locator('.vendor-pill')).toContainText('GOOGLE ADS');
+  await page.getByRole('button', { name: /Run AI audit preview/ }).click();
+  await expect(page.locator('.audit-console-head')).toContainText('AUDIT COMPLETE');
+  await expect(page.locator('.finding')).toHaveCount(4);
+});
