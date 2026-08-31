@@ -86,6 +86,7 @@ function readInitialPreferences(): { preferences: Preferences; saved: boolean } 
 
 const time = () => new Date().toLocaleTimeString('zh-CN', { hour12: false });
 const cookiePresent = (name: string) => document.cookie.split(';').some((part) => part.trim().startsWith(`${name}=`));
+const cookiePrefixPresent = (prefix: string) => document.cookie.split(';').some((part) => part.trim().startsWith(`${prefix}=`) || part.trim().startsWith(`${prefix}_`));
 const cookiePath = () => import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const coreSnapshot = (preferences: Preferences) => ({ policyVersion: preferences.policyVersion, choices: { 'optional-analytics': preferences.analytics, 'personalized-ads': preferences.ads }, signals: { gpc: false }, receiptId: null });
 const coreDecision = (preferences: Preferences, purpose: Purpose, gpc: boolean) => evaluatePurpose(DEFAULT_POLICY, coreSnapshot(preferences), purpose === 'analytics' ? 'optional-analytics' : 'personalized-ads', { gpc });
@@ -255,6 +256,8 @@ export default function App() {
 
   const analyticsCookie = cookieState.analytics;
   const adsCookie = cookieState.ads;
+  const googleAnalyticsCookie = cookiePrefixPresent('_ga');
+  const googleAdsCookie = cookiePresent('_gcl_au');
   const activeRequests = Object.values(tags).filter((status) => status === 'active').length;
   const analyticsDecision = coreDecision(preferences, 'analytics', gpc);
   const receipt = {
@@ -331,7 +334,7 @@ export default function App() {
       <div className="demo-toolbar"><div><span className="live-dot" /> Safe first-party sandbox</div><div className="toolbar-actions"><button onClick={toggleSimulatedGpc} disabled={detectedGpc} title={detectedGpc ? '浏览器已发送真实 GPC，演示开关不能关闭它' : '仅用于演示 GPC 的 sale/share 覆盖'} className={gpc ? 'gpc active' : 'gpc'}><Signal size={14} />{detectedGpc ? '真实 GPC: ON' : `模拟 GPC: ${gpc ? 'ON' : 'OFF'}`}</button><button onClick={reset}><RotateCcw size={14} />重置</button></div></div>
       <div className="demo-grid">
         <article className="console-card"><CardTitle icon={<Network />} title="Tag pipeline" subtitle="actual DOM injection state" /><TagRow name="analytics-demo.js" purpose="analytics" status={tags.analytics} /><TagRow name="ads-demo.js" purpose="sale / sharing" status={gpc ? 'cleaned' : tags['sale-sharing']} /><div className="inert-code"><span>REGISTERED AS INERT</span><code>&lt;script type=&quot;text/plain&quot; data-openconsent-purpose=&quot;analytics&quot;&gt;</code></div></article>
-        <article className="console-card"><CardTitle icon={<Cookie />} title="Cookie jar" subtitle="actual document.cookie state" /><CookieRow name="oc_demo_analytics" purpose="analytics" present={analyticsCookie} /><CookieRow name="oc_demo_ads" purpose="sale / sharing" present={adsCookie} /><p className="card-note">只检查并清理由本演示设置、当前页面可访问的 Cookie；不能读取 HttpOnly 或其他域 Cookie。</p></article>
+        <article className="console-card"><CardTitle icon={<Cookie />} title="Cookie jar" subtitle="actual document.cookie state" /><CookieRow name="oc_demo_analytics" purpose="fixture · analytics" present={analyticsCookie} /><CookieRow name="oc_demo_ads" purpose="fixture · sale / sharing" present={adsCookie} /><CookieRow name="_ga*" purpose="Google Analytics 4" present={googleAnalyticsCookie} /><CookieRow name="_gcl_au" purpose="Google Ads linker" present={googleAdsCookie} /><p className="card-note">只检查并清理由本演示设置、当前页面可访问的 Cookie；不能读取 HttpOnly 或其他域 Cookie。</p></article>
         <article className="console-card"><CardTitle icon={<Activity />} title="Decision & events" subtitle="@openconsent/core + local evidence" /><div className="decision-summary"><span className={analyticsDecision.outcome === 'allow' ? 'allow' : 'deny'}>{analyticsDecision.outcome.toUpperCase()}</span><div><strong>{analyticsDecision.purposeId}</strong><small>{analyticsDecision.reason}</small></div></div><div className="event-list">{events.slice(0, 5).map((event) => <div key={event.id}><i /><span><strong>{event.type}</strong><small>{event.detail}</small></span><time>{event.at}</time></div>)}</div></article>
       </div>
       <div className="receipt-row"><div><span>UNSIGNED BROWSER PREFERENCE SNAPSHOT</span><p>用于解释协议，不是生产合规证明、签名收据或服务端凭证。</p></div><pre>{JSON.stringify(receipt, null, 2)}</pre></div>
