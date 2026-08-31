@@ -58,6 +58,16 @@ pnpm --dir apps/demo install
 pnpm --dir apps/demo dev
 ```
 
+To enable real Google tags in a deployment, provide IDs through build-time environment variables. The runtime still waits for the matching purpose decision before requesting `gtag.js`:
+
+```bash
+VITE_GA_MEASUREMENT_ID=G-XXXXXXX \\
+VITE_GOOGLE_ADS_ID=AW-XXXXXXX \\
+pnpm --dir apps/demo build
+```
+
+The public website intentionally leaves these variables unset and uses first-party fixtures, so visiting the demo does not send data to Google.
+
 These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them. The website is deployed from this repository through GitHub Actions and GitHub Pages; no ChatGPT Sites runtime is required.
 
 openConsent does not yet offer the same production capability as a paid CMP. The [paid CMP comparison](docs/PAID_CMP_COMPARISON.md) separates current implementation, demo behavior, and missing runtime/enterprise features.
