@@ -1,7 +1,10 @@
 {
   "name": "openconsent",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.1",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "description": "Open compliance manifests, checks, evidence and transparency for AI-created and AI-powered software",
   "type": "module",
   "bin": {
@@ -9,7 +12,9 @@
   },
   "scripts": {
     "check:example": "node ./src/cli.mjs check ./examples/openconsent.json",
-    "test": "node --test"
+    "test": "node --test",
+    "test:sdk": "node --test ./test/runtime.test.mjs",
+    "build:demo": "pnpm --dir apps/demo build"
   },
   "engines": {
     "node": ">=20"

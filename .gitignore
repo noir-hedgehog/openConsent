@@ -4,3 +4,9 @@ assessment.json
 transparency.json
 .DS_Store
 *.log
+
+# The demo uses a focused custom interface; generated shadcn primitives are not part of source.
+apps/demo/components/
+apps/demo/hooks/
+apps/demo/lib/
+apps/demo/components.json

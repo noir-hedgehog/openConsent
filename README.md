@@ -47,6 +47,19 @@ node ./src/cli.mjs verify ./examples/openconsent.json ./assessment.json
 node --test
 ```
 
+## Interactive runtime alpha
+
+The repository now includes an interactive GDPR/CCPA runtime lab in [`apps/demo`](apps/demo) and source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter).
+
+```bash
+pnpm --dir apps/demo install
+pnpm --dir apps/demo dev
+```
+
+These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them.
+
+openConsent does not yet offer the same production capability as a paid CMP. The [paid CMP comparison](docs/PAID_CMP_COMPARISON.md) separates current implementation, demo behavior, and missing runtime/enterprise features.
+
 `check` exits with code `1` for blocking declaration/schema findings. Use `--fail-on review` for a release gate that also blocks unresolved human reviews, and `--json` for machine-readable output. A `PASS` means required manifest declarations are present; it is never a legal-compliance verdict.
 
 ## What is in this foundation
@@ -56,6 +69,8 @@ node --test
 - [`docs/COMPLIANCE_MATRIX.md`](docs/COMPLIANCE_MATRIX.md): GDPR and CCPA/CPRA coverage, legal distinctions, and evidence expectations.
 - [`docs/TRANSPARENCY.md`](docs/TRANSPARENCY.md): what must be public, protected, versioned, and challengeable.
 - [`docs/FOUNDATION_AUDIT.md`](docs/FOUNDATION_AUDIT.md): requirement-by-requirement evidence and the exact completion boundary.
+- [`docs/PAID_CMP_COMPARISON.md`](docs/PAID_CMP_COMPARISON.md): dated comparison with a production paid CMP.
+- [`docs/SDK.md`](docs/SDK.md): shared runtime contract, integrations, and security boundary.
 - [`schema/openconsent.schema.json`](schema/openconsent.schema.json): the project manifest contract.
 - [`rules/`](rules): readable, versioned policy-pack metadata and control definitions.
 - [`src/`](src): CLI, strict schema checker, transparency-card generator, and unsigned assessment/verification commands.

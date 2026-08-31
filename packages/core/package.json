@@ -1,0 +1,15 @@
+{
+  "name": "@openconsent/core",
+  "version": "0.2.0-alpha.1",
+  "description": "Framework-neutral runtime decisions for openConsent",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "license": "Apache-2.0"
+}

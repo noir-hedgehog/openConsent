@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-alpha.1 - 2026-08-31
+
+- Add an interactive GDPR/CCPA runtime lab with GPC, preference, decision, receipt, and propagation simulations.
+- Add source integration starters for core, React, Vue, Express, and Spring Boot 3.
+- Add initial cross-language conformance fixtures and runtime tests.
+- Publish a dated paid-CMP comparison and explicit production boundary.
+
 All notable changes to openConsent are documented here. The project follows semantic versioning after the first tagged alpha.
 
 ## [Unreleased]

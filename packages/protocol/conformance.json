@@ -1,0 +1,9 @@
+{
+  "version": "runtime-alpha.1",
+  "vectors": [
+    { "name": "optional defaults denied", "purposeId": "optional-analytics", "choice": "unset", "gpc": false, "expected": "deny" },
+    { "name": "matching consent allows", "purposeId": "optional-analytics", "choice": "granted", "gpc": false, "expected": "allow" },
+    { "name": "gpc overrides sale share", "purposeId": "personalized-ads", "choice": "granted", "gpc": true, "expected": "deny" },
+    { "name": "contract is not a consent toggle", "purposeId": "support", "choice": "unset", "gpc": true, "expected": "allow" }
+  ]
+}

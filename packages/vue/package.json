@@ -1,0 +1,9 @@
+{
+  "name": "@openconsent/vue",
+  "version": "0.2.0-alpha.1",
+  "type": "module",
+  "main": "./src/index.js",
+  "peerDependencies": { "vue": ">=3.3", "@openconsent/core": "0.2.0-alpha.1" },
+  "devDependencies": { "@openconsent/core": "workspace:*" },
+  "license": "Apache-2.0"
+}
