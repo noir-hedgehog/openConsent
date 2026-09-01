@@ -1,0 +1,15 @@
+{
+  "projectId": "openconsent-iife-smoke",
+  "locale": "en",
+  "policy": {
+    "projectId": "openconsent-iife-smoke",
+    "policyVersion": "2026-09-01",
+    "noticeVersion": "2026-09-01",
+    "manifestDigest": "sha256:iife-smoke",
+    "purposes": [
+      { "id": "required", "activityId": "site-operation", "legalBasis": "contract", "optional": false },
+      { "id": "optional-analytics", "activityId": "product-analytics", "legalBasis": "consent", "optional": true }
+    ]
+  },
+  "banner": { "position": "bottom", "theme": "auto" }
+}

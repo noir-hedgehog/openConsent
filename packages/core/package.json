@@ -1,15 +1,32 @@
 {
   "name": "@openconsent/core",
-  "version": "0.2.0-alpha.1",
+  "version": "0.3.0-beta.1",
   "description": "Framework-neutral runtime decisions for openConsent",
   "type": "module",
   "main": "./src/index.js",
+  "module": "./src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./src/index.js",
+      "default": "./src/index.js"
     }
   },
-  "license": "Apache-2.0"
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noir-hedgehog/openConsent.git",
+    "directory": "packages/core"
+  }
 }

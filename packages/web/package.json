@@ -1,0 +1,45 @@
+{
+  "name": "@openconsent/web",
+  "version": "0.3.0-beta.1",
+  "description": "Consent banner, preference center, tag blocking, and Google Consent Mode for openConsent",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "browser": "./dist/openconsent.min.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@openconsent/core": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noir-hedgehog/openConsent.git",
+    "directory": "packages/web"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

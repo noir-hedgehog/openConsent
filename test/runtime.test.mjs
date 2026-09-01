@@ -21,6 +21,36 @@ test('an initial denial is recorded as deny rather than withdrawal', () => {
   assert.equal(client.getEvents()[0].type, 'preference_saved');
 });
 
+test('initial choices restore known preferences and fail closed for malformed data', () => {
+  const client = createOpenConsent({
+    initialChoices: {
+      'optional-analytics': 'granted',
+      'personalized-ads': 'invalid',
+      'unknown-purpose': 'granted'
+    }
+  });
+  assert.equal(client.evaluate('optional-analytics').outcome, 'allow');
+  assert.equal(client.evaluate('personalized-ads').reason, 'OPTIONAL_DEFAULT_DENY');
+  assert.equal(client.getSnapshot().choices['unknown-purpose'], undefined);
+  client.reset();
+  assert.equal(client.evaluate('optional-analytics').reason, 'OPTIONAL_DEFAULT_DENY');
+});
+
+test('bulk preference actions update optional purposes atomically', () => {
+  const client = createOpenConsent({ now: () => '2026-08-31T00:00:00.000Z' });
+  const accepted = client.acceptAll('test');
+  assert.equal(accepted.action, 'accept_all');
+  assert.deepEqual(accepted.choices, { 'optional-analytics': 'granted', 'personalized-ads': 'granted' });
+  assert.equal(client.getSnapshot().revision, 1);
+
+  const saved = client.savePreferences({ 'optional-analytics': 'denied', 'personalized-ads': 'granted' }, 'test');
+  assert.equal(saved.action, 'withdraw');
+  assert.equal(client.getSnapshot().revision, 2);
+  assert.throws(() => client.savePreferences({ support: 'denied' }), /known optional consent purposes/);
+  assert.throws(() => client.savePreferences({ 'optional-analytics': 'unset' }), /granted or denied/);
+  assert.throws(() => client.savePreferences({}), /at least one/);
+});
+
 test('preference receipts reject unknown and non-consent purposes', () => {
   const client = createOpenConsent();
   assert.throws(() => client.setChoice('missing-purpose', 'granted'), /known optional consent purpose/);
@@ -49,6 +79,16 @@ test('Express adapter trusts server-observed Sec-GPC', async () => {
   const snapshot = { choices: { 'personalized-ads': 'granted' }, signals: {}, policyVersion: DEFAULT_POLICY.policyVersion };
   await new Promise((resolve, reject) => openConsent({ policy: DEFAULT_POLICY, getSnapshot: async () => snapshot })(request, {}, (error) => error ? reject(error) : resolve()));
   assert.equal(request.openConsent.can('personalized-ads').outcome, 'deny');
+});
+
+test('Express adapter treats a missing preference snapshot as optional deny', async () => {
+  const request = { headers: {} };
+  await new Promise((resolve, reject) => openConsent({ policy: DEFAULT_POLICY, getSnapshot: async () => null })(request, {}, (error) => error ? reject(error) : resolve()));
+  assert.equal(request.openConsent.can('optional-analytics').reason, 'OPTIONAL_DEFAULT_DENY');
+  let status;
+  const response = { status(value) { status = value; return this; }, json(value) { this.body = value; return this; }, set() {} };
+  requirePurpose('optional-analytics')(request, response, () => assert.fail('must not call next'));
+  assert.equal(status, 403);
 });
 
 test('requirePurpose fails closed', () => {

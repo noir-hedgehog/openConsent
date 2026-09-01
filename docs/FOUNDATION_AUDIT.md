@@ -1,5 +1,7 @@
 # Foundation completion audit
 
+> Historical engineering record. This audit describes the 2026-08-31 CLI/manifest foundation and is not the current product landing page, release status, or proof of the 0.3 consent SDK. See [the product plan](PROJECT_PLAN.md) and [roadmap](ROADMAP.md) for the current direction.
+
 Audit date: 2026-08-31  
 Scope: v0.1 planning and executable foundation  
 Release state: public foundation complete; remote source tree and GitHub Actions verified

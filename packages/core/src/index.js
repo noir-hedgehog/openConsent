@@ -43,10 +43,19 @@ export function createOpenConsent(options = {}) {
   const policy = options.policy ?? DEFAULT_POLICY;
   const now = options.now ?? defaultNow;
   const initialGpc = Boolean(options.gpc);
+  const optionalPurposes = policy.purposes.filter((purpose) => purpose.optional && purpose.legalBasis === 'consent');
+  const defaultChoices = Object.fromEntries(optionalPurposes.map((purpose) => [purpose.id, 'unset']));
+  const suppliedChoices = options.initialChoices && typeof options.initialChoices === 'object' && !Array.isArray(options.initialChoices)
+    ? options.initialChoices
+    : {};
+  const initialChoices = Object.fromEntries(Object.entries(defaultChoices).map(([purposeId, fallback]) => {
+    const choice = suppliedChoices[purposeId];
+    return [purposeId, ['granted', 'denied', 'unset'].includes(choice) ? choice : fallback];
+  }));
   let snapshot = {
     subjectRef: options.subjectRef ?? 'browser-demo',
     revision: 0,
-    choices: Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'unset'])),
+    choices: initialChoices,
     signals: { gpc: initialGpc },
     policyVersion: policy.policyVersion,
     updatedAt: now(),
@@ -85,6 +94,16 @@ export function createOpenConsent(options = {}) {
     publish();
     return receipt;
   };
+  const validateChoices = (choices) => {
+    if (!choices || typeof choices !== 'object' || Array.isArray(choices)) throw new TypeError('choices must be an object');
+    if (Object.keys(choices).length === 0) throw new TypeError('choices must include at least one optional consent purpose');
+    const optionalPurposeIds = new Set(optionalPurposes.map((purpose) => purpose.id));
+    for (const [purposeId, choice] of Object.entries(choices)) {
+      if (!optionalPurposeIds.has(purposeId)) throw new TypeError('choices require known optional consent purposes');
+      if (!['granted', 'denied'].includes(choice)) throw new TypeError('choice must be granted or denied');
+    }
+    return choices;
+  };
   const api = {
     policy,
     getSnapshot: () => structuredClone(snapshot),
@@ -97,8 +116,16 @@ export function createOpenConsent(options = {}) {
       const wasGranted = snapshot.choices?.[purposeId] === 'granted';
       return mutate(choice === 'granted' ? 'save' : wasGranted ? 'withdraw' : 'deny', { [purposeId]: choice }, source);
     },
+    savePreferences(choices, source) {
+      const validated = validateChoices(choices);
+      const withdrew = Object.entries(validated).some(([purposeId, choice]) => choice === 'denied' && snapshot.choices[purposeId] === 'granted');
+      return mutate(withdrew ? 'withdraw' : 'save', validated, source);
+    },
+    acceptAll(source) {
+      return mutate('accept_all', Object.fromEntries(optionalPurposes.map((purpose) => [purpose.id, 'granted'])), source);
+    },
     rejectOptional(source) {
-      const choices = Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'denied']));
+      const choices = Object.fromEntries(optionalPurposes.map((purpose) => [purpose.id, 'denied']));
       return mutate('reject_optional', choices, source);
     },
     setGpc(enabled, source = 'sec-gpc') {
@@ -112,7 +139,7 @@ export function createOpenConsent(options = {}) {
       return decision;
     },
     reset() {
-      snapshot = { ...snapshot, revision: 0, choices: Object.fromEntries(policy.purposes.filter((p) => p.optional).map((p) => [p.id, 'unset'])), signals: { gpc: initialGpc }, updatedAt: now(), receiptId: null };
+      snapshot = { ...snapshot, revision: 0, choices: { ...defaultChoices }, signals: { gpc: initialGpc }, updatedAt: now(), receiptId: null };
       events.length = 0;
       publish();
     }

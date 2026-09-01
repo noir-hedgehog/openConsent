@@ -15,9 +15,9 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
-    command: 'VITE_BASE_PATH=/openConsent/ pnpm build && VITE_BASE_PATH=/openConsent/ pnpm preview --host 127.0.0.1 --port 4183',
+    command: 'VITE_BASE_PATH=/openConsent/ VITE_GA_MEASUREMENT_ID=G-TEST123 VITE_GOOGLE_ADS_ID=AW-TEST123 pnpm build && VITE_BASE_PATH=/openConsent/ pnpm preview --host 127.0.0.1 --port 4183',
     url: 'http://127.0.0.1:4183/openConsent/',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

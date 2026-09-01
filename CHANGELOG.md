@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-beta.1 - 2026-09-01
+
+- Reposition openConsent as a free, open-source consent-management SDK for AI and SaaS teams.
+- Add `@openconsent/web` with ESM and IIFE builds, an accessible bilingual Banner and Preference Center, versioned browser preferences, explicit managed-tag blocking, GPC enforcement, Google Consent Mode, and unsigned preference callbacks.
+- Add React and Vue Banner components, complete public types, aligned package metadata, Express types, and Spring Boot 3 build metadata.
+- Replace the work-log homepage with an English-first bilingual product website and move technical state, decisions, and receipts into `/playground/`.
+- Add Trusted Publishing, provenance, package-content checks, tarball installation smoke tests, resource checks, and expanded browser E2E coverage.
+
 ## 0.3.0-alpha.1 - 2026-08-31
 
 - Replace the temporary ChatGPT Sites runtime with a repository-owned Vite site deployed through GitHub Pages.

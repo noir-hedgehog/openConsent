@@ -1,102 +1,183 @@
 # openConsent
 
-**Open compliance infrastructure for software created by people, AI, and agents.**
+**Open-source consent management for modern web apps.**
 
-openConsent is an open, developer-first policy and evidence layer for projects built with or powered by AI. It turns privacy assumptions into a versioned project manifest, checks that manifest against transparent rule packs, and produces a public transparency card and an unsigned, reproducible assessment record.
+openConsent gives AI and SaaS teams a configurable Cookie Banner, a preference center, explicit tag pre-blocking, Google Consent Mode, and the same consent decisions across browser and server frameworks. It is free forever, self-hosted, and licensed under Apache-2.0.
 
-**Official website:** [noir-hedgehog.github.io/openConsent](https://noir-hedgehog.github.io/openConsent/)
+[Official website](https://noir-hedgehog.github.io/openConsent/) · [Live demo](https://noir-hedgehog.github.io/openConsent/#demo) · [SDK guide](docs/SDK.md) · [Playground guide](docs/PLAYGROUND.md)
 
-The first rule packs focus on GDPR readiness and CCPA/CPRA readiness. They are selectable because applicability depends on the project, organisation, users, and processing activity.
+> openConsent helps teams implement and test consent controls. It is not legal advice, certification, or a guarantee of GDPR, ePrivacy, CCPA, or CPRA compliance. Your organisation remains responsible for legal applicability, configuration, notices, vendors, and operating evidence.
 
-> openConsent is compliance engineering infrastructure, not a law firm, legal opinion, certification, or guarantee of compliance. It finds missing declarations and evidence; qualified people remain responsible for applicability and legal conclusions.
+## What you get
 
-## Why this exists
+- An accessible Banner and Preference Center with equal accept and reject choices.
+- Optional processing denied until the user grants the matching purpose.
+- Explicitly registered scripts activated by purpose and stopped from making new requests after withdrawal.
+- Versioned preferences in `localStorage`; policy or notice changes ask the user again.
+- Global Privacy Control enforcement for configured sale/sharing purposes.
+- Google Analytics 4 and Google Ads integration with Consent Mode defaults and updates.
+- Plain HTML, React, Vue, Express, and Spring Boot integration paths.
+- Deterministic CLI/CI **Privacy Readiness Checks** with public rule packs.
 
-AI can create an application before its data flows, vendors, retention periods, and user controls have been made explicit. Agentic systems add a second problem: software can start calling models and tools after deployment. openConsent makes those facts reviewable in Git and reusable by CI, applications, and agents.
+## Five-minute Plain HTML setup
 
-The project takes four principles from [ConsentStack/CMP](https://github.com/ConsentStack/cmp): human-centred controls, developer adoption, separation of policy logic from UI, and a concise privacy label. openConsent is a new implementation because that repository is a 2018 browser Cookie CMP, rather than a current general compliance engine.
+Create `openconsent.json` in your public assets:
 
-## MVP loop
-
-```mermaid
-flowchart LR
-  A[Code and architecture] --> B[openconsent.json]
-  B --> C[Deterministic rule packs]
-  C --> D[CI findings]
-  C --> E[Assessment record]
-  B --> F[Public transparency card]
-  D -->|fix and review| B
-  G[AI or agent assistant] -->|proposes facts only| B
+```json
+{
+  "projectId": "my-app",
+  "locale": "en",
+  "policy": {
+    "projectId": "my-app",
+    "policyVersion": "2026-09-01",
+    "noticeVersion": "2026-09-01",
+    "manifestDigest": "sha256:replace-with-your-policy-digest",
+    "purposes": [
+      {
+        "id": "required",
+        "activityId": "site-operation",
+        "legalBasis": "contract",
+        "optional": false
+      },
+      {
+        "id": "optional-analytics",
+        "activityId": "product-analytics",
+        "legalBasis": "consent",
+        "optional": true
+      },
+      {
+        "id": "personalized-ads",
+        "activityId": "ad-personalization",
+        "legalBasis": "consent",
+        "optional": true,
+        "sale": true,
+        "sharing": true
+      }
+    ]
+  },
+  "banner": {
+    "position": "bottom",
+    "theme": "auto"
+  }
+}
 ```
 
-1. Declare the project, processing activities, notices, rights channels, AI components, and evidence in `openconsent.json`.
-2. Run the selected GDPR and/or CCPA readiness checks.
-3. Resolve blocking findings and complete accountable human reviews outside the v0.1 CLI.
-4. Publish the generated transparency card without exposing personal receipts, prompts, IP addresses, or secrets.
-5. Re-run the checks whenever the manifest, policy pack, or project changes.
+Load the browser build before any optional tags:
 
-## Try it
+```html
+<script
+  src="https://noir-hedgehog.github.io/openConsent/openconsent.min.js"
+  data-openconsent-config="/openconsent.json">
+</script>
+```
 
-Node.js 22.12 or newer plus installed dependencies are required for the website and current toolchain.
+Register optional scripts as inert markup. openConsent activates them only after the matching purpose is allowed:
+
+```html
+<script
+  type="text/plain"
+  data-openconsent-purpose="optional-analytics"
+  data-openconsent-src="https://example.com/analytics.js"
+  data-openconsent-cleanup="stopAnalytics">
+</script>
+```
+
+External managed scripts must allow a CORS fetch. The optional cleanup hook should stop timers, listeners, and client state that removing an executed script element cannot undo. Use the dedicated Google integration for GA4 and Google Ads.
+
+For application-controlled setup:
+
+```js
+OpenConsent.init({
+  projectId: 'my-app',
+  locale: 'en',
+  policy,
+  banner: { position: 'bottom', theme: 'auto' },
+  integrations: {
+    ga4: { measurementId: 'G-XXXXXXX' },
+    googleAds: { tagId: 'AW-XXXXXXX' }
+  },
+  onPreferenceChange(receipt) {
+    // Send the unsigned preference receipt to your own protected backend if needed.
+  }
+});
+```
+
+The official website hosts this same browser build today. After the first tagged npm release, the equivalent jsDelivr URL will be `https://cdn.jsdelivr.net/npm/@openconsent/web@0.3.0-beta.1/dist/openconsent.min.js`.
+
+The beta packages are prepared for the public `@openconsent` npm scope. Until the first tagged npm release is published, install from this repository or use the official hosted browser build above; do not assume that a package name alone means it is available on the registry.
+
+## Framework integrations
+
+```bash
+pnpm add @openconsent/web
+pnpm add @openconsent/react react
+pnpm add @openconsent/vue vue
+pnpm add @openconsent/express express
+```
+
+React provides `OpenConsentProvider`, `ConsentBanner`, `ConsentGate`, and consent hooks. Vue provides equivalent components and a composable. Express and the Spring Boot starter evaluate server-observed choices and `Sec-GPC`; your backend remains responsible for authenticated subjects and durable receipt storage.
+
+See [the SDK guide](docs/SDK.md) for complete examples, package boundaries, and the Google integration order.
+
+## Privacy Readiness Checks
+
+The CLI checks a version-controlled project manifest against transparent GDPR and CCPA/CPRA engineering rules. It reports missing declarations and human-review gates; it does not return a legal-compliance score.
 
 ```bash
 pnpm install --frozen-lockfile
 node ./src/cli.mjs check ./examples/openconsent.json
 node ./src/cli.mjs check ./examples/openconsent.json --fail-on review
-node ./src/cli.mjs transparency ./examples/openconsent.json --out ./transparency.json
-node ./src/cli.mjs assessment ./examples/openconsent.json --out ./assessment.json
-node ./src/cli.mjs verify ./examples/openconsent.json ./assessment.json
-node --test
+node ./src/cli.mjs check ./examples/openconsent.json --json
 ```
 
-## Official website and interactive runtime alpha
+`check` exits with code `1` for blocking declaration or schema findings. `--fail-on review` also blocks unresolved human reviews, which makes it suitable for a release gate.
 
-The repository includes its official developer website and interactive GDPR/CCPA runtime demo in [`apps/demo`](apps/demo), plus source integration starters for [`@openconsent/core`](packages/core), [React](packages/react), [Vue](packages/vue), [Express](packages/express), and [Spring Boot 3](packages/spring-boot-starter). The site shows a mainstream-style Banner, a one-step integration path, an AI-assisted audit preview, and purpose-gated Google Analytics / Google Ads loading. The public build uses first-party fixtures by default; explicit permission injects safe local fixtures and writes visible demo Cookies, while a deployment can provide Google IDs through environment variables.
+## Run the official website locally
+
+Node.js 22.12 or newer and pnpm are required for the website toolchain.
 
 ```bash
-pnpm --dir apps/demo install
+pnpm install --frozen-lockfile
 pnpm --dir apps/demo dev
 ```
 
-To enable real Google tags in a deployment, provide IDs through build-time environment variables. The runtime still waits for the matching purpose decision before requesting `gtag.js`:
+The public website is built from [`apps/demo`](apps/demo) and deployed through GitHub Actions to GitHub Pages. It does not use GPT Sites. The demo keeps Google identifiers unset by default, so a normal visit does not contact Google.
 
-```bash
-VITE_GA_MEASUREMENT_ID=G-XXXXXXX \\
-VITE_GOOGLE_ADS_ID=AW-XXXXXXX \\
-pnpm --dir apps/demo build
-```
+## Support matrix
 
-The public website intentionally leaves these variables unset and uses first-party fixtures, so visiting the demo does not send data to Google.
+| Surface | Package/module | Beta scope |
+| --- | --- | --- |
+| Plain HTML / browser | `@openconsent/web` | Banner, preference center, stored choices, managed scripts, GPC, Google Consent Mode |
+| React | `@openconsent/react` | Provider, Banner, gates, hooks |
+| Vue 3 | `@openconsent/vue` | Plugin, Banner, gates, composable |
+| Express | `@openconsent/express` | Request decisions and `Sec-GPC` parsing |
+| Spring Boot 3 / Java 17 | `packages/spring-boot-starter` | Server evaluator and request filter; not yet published to Maven Central |
+| CLI / CI | repository `src/cli.mjs` | Deterministic GDPR and CCPA/CPRA readiness checks |
 
-For GitHub Pages, add repository **Variables** under `Settings → Secrets and variables → Actions` named `OPENCONSENT_GA_MEASUREMENT_ID` (`G-...`) and/or `OPENCONSENT_GOOGLE_ADS_ID` (`AW-...`). The Pages workflow maps them to the Vite variables above; changing a variable requires a new workflow run.
+All JavaScript packages target version `0.3.0-beta.1`. Registry publication requires the maintainer-owned npm scope and Trusted Publisher setup described in [the release guide](docs/SDK.md#publishing-and-provenance).
 
-These adapters are `0.2.0-alpha.1` source starters and have not been published to npm or Maven Central. Read the [SDK contract and production boundary](docs/SDK.md) before integrating them. The website is deployed from this repository through GitHub Actions and GitHub Pages; no ChatGPT Sites runtime is required.
+## Current limitations
 
-openConsent does not yet offer the same production capability as a paid CMP. The [paid CMP comparison](docs/PAID_CMP_COMPARISON.md) separates current implementation, demo behavior, and missing runtime/enterprise features.
+- Tag blocking covers scripts explicitly registered with `data-openconsent-purpose`; openConsent does not automatically discover every Cookie, pixel, iframe, server event, or vendor.
+- Withdrawal prevents new managed requests and removes known integration state where supported. A third party may already have received data before withdrawal if it was previously allowed.
+- Browser preferences and unsigned receipts are not authoritative audit evidence. Production evidence requires protected server storage, identity binding, access control, retention, and operational monitoring.
+- IAB TCF/GPP, automated website scanning, vendor catalogs, mobile SDKs, rights-request workflows, and enterprise reporting are not included in this beta.
 
-`check` exits with code `1` for blocking declaration/schema findings. Use `--fail-on review` for a release gate that also blocks unresolved human reviews, and `--json` for machine-readable output. A `PASS` means required manifest declarations are present; it is never a legal-compliance verdict.
+See [openConsent compared with a paid CMP](docs/PAID_CMP_COMPARISON.md) for a capability-by-capability boundary.
 
-## What is in this foundation
+## Documentation
 
-- [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md): product scope, users, milestones, acceptance gates, and backlog.
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): trust boundaries, objects, agent rules, APIs, and deployment path.
-- [`docs/COMPLIANCE_MATRIX.md`](docs/COMPLIANCE_MATRIX.md): GDPR and CCPA/CPRA coverage, legal distinctions, and evidence expectations.
-- [`docs/TRANSPARENCY.md`](docs/TRANSPARENCY.md): what must be public, protected, versioned, and challengeable.
-- [`docs/FOUNDATION_AUDIT.md`](docs/FOUNDATION_AUDIT.md): requirement-by-requirement evidence and the exact completion boundary.
-- [`docs/PAID_CMP_COMPARISON.md`](docs/PAID_CMP_COMPARISON.md): dated comparison with a production paid CMP.
-- [`docs/SDK.md`](docs/SDK.md): shared runtime contract, integrations, and security boundary.
-- [`schema/openconsent.schema.json`](schema/openconsent.schema.json): the project manifest contract.
-- [`rules/`](rules): readable, versioned policy-pack metadata and control definitions.
-- [`src/`](src): CLI, strict schema checker, transparency-card generator, and unsigned assessment/verification commands.
-- [`test/`](test): behaviour checks for valid and unsafe manifests.
+- [SDK integration and production boundary](docs/SDK.md)
+- [Playground and diagnostic evidence](docs/PLAYGROUND.md)
+- [Product roadmap](docs/ROADMAP.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [GDPR and CCPA/CPRA control matrix](docs/COMPLIANCE_MATRIX.md)
+- [Transparency model](docs/TRANSPARENCY.md)
+- [Foundation audit](docs/FOUNDATION_AUDIT.md)
 
-## Product boundary
+## Contributing
 
-openConsent checks declared facts and creates evidence artifacts. Its website demonstrates a browser consent UI and pre-blocking for explicitly managed tags, but the project does not yet discover all runtime data flows, provide a universal Cookie firewall, fulfil privacy requests, sign production receipts, or enforce model/tool calls. Those are explicit later milestones, so the public claims stay narrower than the implementation.
-
-## Project status
-
-**Foundation / pre-alpha.** Rule packs are initial engineering controls and require legal review before a stable release. See the [project plan](docs/PROJECT_PLAN.md) for the path to the first pilot.
+Rules, source code, tests, limitations, and release history are public. Open an issue for a bug, integration request, or rule challenge. Security and privacy reports should follow [`SECURITY.md`](SECURITY.md).
 
 ## Licence
 

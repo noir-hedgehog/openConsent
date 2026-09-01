@@ -1,11 +1,11 @@
 {
   "name": "openconsent",
-  "version": "0.2.0-alpha.1",
+  "version": "0.3.0-beta.1",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
-  "description": "Open compliance manifests, checks, evidence and transparency for AI-created and AI-powered software",
+  "description": "Free, open-source consent management for AI and SaaS teams",
   "type": "module",
   "bin": {
     "openconsent": "./src/cli.mjs"
@@ -14,12 +14,19 @@
     "check:example": "node ./src/cli.mjs check ./examples/openconsent.json",
     "test": "node --test",
     "test:sdk": "node --test ./test/runtime.test.mjs",
+    "build:packages": "pnpm --filter './packages/**' --recursive --if-present run build",
+    "pack:check": "for package in packages/core packages/web packages/react packages/vue packages/express; do npm pack --dry-run --json \"./$package\" >/dev/null || exit 1; done",
+    "smoke:tarballs": "node ./scripts/smoke-tarballs.mjs",
     "build:demo": "pnpm --dir apps/demo build"
   },
   "engines": {
     "node": ">=20"
   },
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noir-hedgehog/openConsent.git"
+  },
   "dependencies": {
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1"

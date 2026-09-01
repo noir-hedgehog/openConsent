@@ -1,0 +1,36 @@
+{
+  "projectId": "my-app",
+  "locale": "en",
+  "policy": {
+    "projectId": "my-app",
+    "policyVersion": "2026-09-01",
+    "noticeVersion": "privacy-notice-1",
+    "manifestDigest": "sha256:replace-with-your-policy-digest",
+    "purposes": [
+      {
+        "id": "essential",
+        "activityId": "serve-application",
+        "legalBasis": "legitimate-interest",
+        "optional": false
+      },
+      {
+        "id": "optional-analytics",
+        "activityId": "product-analytics",
+        "legalBasis": "consent",
+        "optional": true
+      },
+      {
+        "id": "personalized-ads",
+        "activityId": "advertising",
+        "legalBasis": "consent",
+        "optional": true,
+        "sale": true,
+        "sharing": true
+      }
+    ]
+  },
+  "banner": {
+    "position": "bottom",
+    "theme": "auto"
+  }
+}

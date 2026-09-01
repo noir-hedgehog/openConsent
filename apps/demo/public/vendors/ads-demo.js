@@ -1,14 +1,9 @@
 (() => {
-  const generation = Number(document.currentScript.dataset.openconsentGeneration);
-  const guard = window.__openConsentDemoPermissions?.['sale-sharing'];
-  if (!guard?.allowed || guard.generation !== generation) return;
-  window.__openConsentDemoVendors = window.__openConsentDemoVendors || {};
-  window.__openConsentDemoVendors.ads = { loadedAt: new Date().toISOString() };
-  const scriptUrl = new URL(document.currentScript.src);
-  const vendorSegment = '/vendors/';
-  const segmentIndex = scriptUrl.pathname.indexOf(vendorSegment);
-  const cookiePath = segmentIndex >= 0 ? scriptUrl.pathname.slice(0, segmentIndex + 1) : '/';
+  const path = location.pathname.includes('/playground/') ? location.pathname.split('/playground/')[0] + '/' : location.pathname.replace(/[^/]*$/, '');
   const secure = location.protocol === 'https:' ? '; Secure' : '';
-  document.cookie = `oc_demo_ads=active; path=${cookiePath}; SameSite=Lax${secure}`;
-  window.dispatchEvent(new CustomEvent('openconsent:vendor-loaded', { detail: { id: 'ads-demo', purpose: 'sale-sharing', generation } }));
+  document.cookie = `oc_demo_ads=active; path=${path || '/'}; SameSite=Lax${secure}`;
+  window.openConsentCleanupAds = () => {
+    document.cookie = `oc_demo_ads=; Max-Age=0; path=${path || '/'}; SameSite=Lax${secure}`;
+  };
+  window.dispatchEvent(new CustomEvent('openconsent:vendor-loaded', { detail: { id: 'ads-demo', purpose: 'personalized-ads' } }));
 })();

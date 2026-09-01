@@ -1,9 +1,26 @@
 {
   "name": "@openconsent/react",
-  "version": "0.2.0-alpha.1",
+  "version": "0.3.0-beta.1",
+  "description": "React provider, consent gates and banner for openConsent",
   "type": "module",
   "main": "./src/index.js",
-  "peerDependencies": { "react": ">=18", "@openconsent/core": "0.2.0-alpha.1" },
-  "devDependencies": { "@openconsent/core": "workspace:*" },
-  "license": "Apache-2.0"
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": ["src"],
+  "sideEffects": false,
+  "dependencies": {
+    "@openconsent/core": "workspace:*",
+    "@openconsent/web": "workspace:*"
+  },
+  "peerDependencies": { "react": ">=18" },
+  "publishConfig": { "access": "public" },
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/noir-hedgehog/openConsent.git", "directory": "packages/react" }
 }

@@ -1,6 +1,6 @@
 {
   "name": "openconsent-site",
-  "version": "0.3.0-alpha.1",
+  "version": "0.3.0-beta.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -14,7 +14,8 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@openconsent/core": "file:../../packages/core",
+    "@openconsent/core": "workspace:*",
+    "@openconsent/web": "workspace:*",
     "lucide-react": "1.31.0",
     "react": "19.2.6",
     "react-dom": "19.2.6"

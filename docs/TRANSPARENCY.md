@@ -47,4 +47,4 @@ Publish evidence metadata or a scoped attestation when raw evidence cannot be pu
 - Explanations describe consequences without pressure, obstruction, or fabricated urgency.
 - Metrics do not optimise for the highest opt-in rate.
 
-The current CLI can generate the data foundation for a public card. A later renderer must meet accessibility standards and show unresolved/manual-review items alongside positive claims.
+The CLI can generate the data foundation for a public card. The official website and Playground expose runtime behavior without publishing personal receipts or production identifiers. Any project-specific transparency renderer must meet accessibility standards and show unresolved or manual-review items alongside positive claims.

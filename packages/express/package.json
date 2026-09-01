@@ -1,9 +1,28 @@
 {
   "name": "@openconsent/express",
-  "version": "0.2.0-alpha.1",
+  "version": "0.3.0-beta.1",
+  "description": "Express middleware for openConsent decisions and GPC enforcement",
   "type": "module",
   "main": "./src/index.js",
-  "dependencies": { "@openconsent/core": "workspace:*" },
-  "peerDependencies": { "express": ">=4" },
-  "license": "Apache-2.0"
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": ["src"],
+  "sideEffects": false,
+  "dependencies": {
+    "@openconsent/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": ">=4"
+  },
+  "publishConfig": { "access": "public" },
+  "engines": { "node": ">=18" },
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/noir-hedgehog/openConsent.git", "directory": "packages/express" }
 }

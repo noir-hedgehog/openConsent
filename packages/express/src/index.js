@@ -8,7 +8,16 @@ export function openConsent(options) {
   if (!options?.policy || !options?.getSnapshot) throw new TypeError('policy and getSnapshot are required');
   return async function openConsentMiddleware(request, response, next) {
     try {
-      const snapshot = await options.getSnapshot(request);
+      const loadedSnapshot = await options.getSnapshot(request);
+      const snapshot = loadedSnapshot && typeof loadedSnapshot === 'object' ? loadedSnapshot : {
+        subjectRef: 'anonymous',
+        revision: 0,
+        choices: {},
+        signals: {},
+        policyVersion: options.policy.policyVersion,
+        updatedAt: new Date(0).toISOString(),
+        receiptId: null
+      };
       const gpc = readGpc(request);
       request.openConsent = {
         gpc,

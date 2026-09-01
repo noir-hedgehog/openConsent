@@ -1,0 +1,73 @@
+name: Publish JavaScript packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Use an npm CLI with Trusted Publishing support
+        run: npm install --global npm@11
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - name: Build public packages
+        run: pnpm build:packages
+      - name: Verify tag and package versions
+        shell: bash
+        run: |
+          release_version="${GITHUB_REF_NAME#v}"
+          for package_dir in packages/core packages/web packages/react packages/vue packages/express
+          do
+            package_version="$(node -p "require('./${package_dir}/package.json').version")"
+            if [[ "${package_version}" != "${release_version}" ]]; then
+              echo "::error file=${package_dir}/package.json::Expected version ${release_version}, found ${package_version}"
+              exit 1
+            fi
+          done
+      - name: Inspect publish file lists
+        shell: bash
+        run: |
+          for package_dir in packages/core packages/web packages/react packages/vue packages/express
+          do
+            npm pack --dry-run "./${package_dir}"
+          done
+      - run: pnpm smoke:tarballs
+      - name: Create registry-ready tarballs
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/openconsent-packages"
+          for package_dir in packages/core packages/web packages/react packages/vue packages/express
+          do
+            pnpm --dir "${package_dir}" pack --pack-destination "${RUNNER_TEMP}/openconsent-packages"
+          done
+      - name: Publish public packages with provenance
+        shell: bash
+        run: |
+          release_version="${GITHUB_REF_NAME#v}"
+          dist_tag="latest"
+          if [[ "${release_version}" == *-* ]]; then
+            dist_tag="beta"
+          fi
+          for package_dir in packages/core packages/web packages/react packages/vue packages/express
+          do
+            package_name="$(node -p "require('./${package_dir}/package.json').name")"
+            package_version="$(node -p "require('./${package_dir}/package.json').version")"
+            archive_name="${package_name#@}"
+            archive_name="${archive_name//\//-}-${package_version}.tgz"
+            npm publish "${RUNNER_TEMP}/openconsent-packages/${archive_name}" --access public --provenance --tag "${dist_tag}"
+          done

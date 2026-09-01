@@ -1,49 +1,60 @@
-# openConsent vs. a paid CMP
+# openConsent compared with a paid CMP
 
-Verified on 2026-08-31 against consentmanager's official product and help pages. Vendor claims were not independently tested. Features, plan limits, and prices can change.
+Vendor information was reviewed on 2026-08-31 against consentmanager's official product and help pages. Vendor claims were not independently tested, and features, plans, prices, standards, and legal requirements can change.
 
-## Answer
+## Does openConsent provide the same capability?
 
-openConsent v0.1 does **not** provide the same capability as consentmanager and is not a direct replacement today.
+No. openConsent `0.3.0-beta.1` covers the core integration needed by many small web applications: a Banner, Preference Center, explicit tag pre-blocking, stored versioned choices, withdrawal, GPC, Google Consent Mode, and framework adapters. It is free, open source, self-hosted, and its rules and tests are public.
 
-openConsent is currently an open compliance engineering layer: versioned manifests, readable rule packs, deterministic CLI/CI checks, transparency cards, and reproducible unsigned assessments. consentmanager is a production runtime CMP SaaS that serves consent interfaces to visitors, controls tags, stores audit records, scans websites, integrates with advertising standards, and provides operational reporting.
-
-The runtime SDKs and website demo establish a shared decision protocol and integration surface. They remain integration starters. The site now demonstrates explicit managed-tag pre-blocking, Cookie creation after permission, withdrawal cleanup, and GPC override. It does not provide a hosted evidence service, signed receipts, identity binding, automatic blocking, vendor discovery, or a legal guarantee.
+A paid CMP such as consentmanager also supplies a managed operational service: recurring website scanning, vendor and Cookie discovery, hosted configuration, audit records, reporting, standards integrations, multi-site administration, support, and plan-dependent legal or rights-request tooling. openConsent is not a drop-in replacement for those capabilities.
 
 ## Capability matrix
 
-| Capability | consentmanager | openConsent today |
+| Capability | Paid CMP example | openConsent 0.3 beta |
 | --- | --- | --- |
-| GDPR and CCPA/CPRA | Runtime messages, jurisdiction configuration, opt-in and opt-out flows | Selectable declaration checks and review gates |
-| Consent banner and preference center | Hosted, configurable, multilingual interface | Mainstream-style first-visit website demo with equal reject/accept and per-purpose choices; no tenant configuration or localisation service |
-| Consent withdrawal and audit proof | Encrypted consent protocol / audit trail | Unsigned in-memory demo receipt; no production store |
-| Cookie, pixel, and vendor scanning | Recurring crawler and discovered-domain workflow | Not implemented |
-| Script, iframe, and cookie control | Manual and automatic blocking | Demonstrated for explicitly registered local scripts and known demo Cookies; no automatic discovery or third-party coverage |
-| GPC and privacy signals | Runtime privacy-signal support | Core/Express/Spring alpha evaluators; no account/device reconciliation |
-| IAB TCF and IAB GPP | Supported on eligible plans | Not implemented |
-| Google Analytics / Ads integration | Managed vendor templates and Consent Mode support | Real `gtag.js` loading path gated by purpose, configurable through deployment IDs; public demo uses first-party fixtures and does not send visitor data |
-| Google Consent Mode v2 | Supported on current paid plans | Integration pattern documented; production defaults, account configuration, and verification remain deployment responsibilities |
-| Mobile and platform SDKs | Mobile and additional platform integrations | React, Vue, Express, Spring Boot source starters only |
-| Reporting and optimization | Consent reporting and plan-dependent A/B optimization | Assessment counts; no traffic analytics |
-| Rights requests and legal documents | Plan-dependent tools and policy generator | Checks that a declared rights channel exists |
-| Enterprise operations | Multi-site plans, accounts, white label, support options | Git-based open governance |
-| Rule transparency and reproducibility | Proprietary service implementation | Public schema, rule packs, source, and digests |
-| AI and agent governance | Not its primary focus | Explicit product direction; enforcement is not implemented yet |
+| Banner and preference center | Hosted, configurable, multilingual service | Open-source English/Chinese UI integrated in the application |
+| First-visit optional blocking | Manual and automatic blocking options | Explicitly registered managed scripts fail closed; no universal discovery |
+| Saved choices and withdrawal | Managed consent service and audit trail | Versioned browser preferences and unsigned callback receipt; no authoritative hosted store |
+| GDPR and CCPA/CPRA | Jurisdiction templates and runtime flows | Purpose model, GPC override, public readiness rules; deployment applicability remains a human decision |
+| Google Analytics / Ads | Vendor templates and managed Consent Mode setup | Direct GA4/Ads configuration with denied defaults and grant/withdrawal updates |
+| Cookie, pixel, and vendor scanning | Recurring crawler and discovered-domain workflow | Not included |
+| IAB TCF and GPP | Available on eligible plans | Not included |
+| Mobile and additional platforms | Vendor-dependent SDKs | Plain HTML, React, Vue, Express, and Spring starter |
+| Reporting and optimisation | Consent reporting and plan-dependent testing | Local runtime diagnostics and CI checks; no traffic dashboard |
+| Rights-request operations | Plan-dependent workflow tools | Checks that a channel is declared; no request workflow |
+| Multi-site and enterprise operations | Accounts, roles, support, white label, SLAs | Git-based configuration and open governance |
+| Rules and implementation transparency | Proprietary service implementation | Apache-2.0 source, public rules, tests, limitations, and provenance |
+| AI audit | Vendor-dependent | No shipped AI audit; deterministic Privacy Readiness Checks only |
 
-## Current vendor plan snapshot
+## Choose openConsent when
 
-The official comparison page listed Starter at €23/month for one website/app and 100,000 included page views, Essential at €59/month for up to three websites/apps and one million page views, and Enterprise at custom pricing. The same page described plan-dependent IAB TCF/GPP, crawler limits, data-subject-rights tooling, and enterprise features. Use the vendor page for procurement decisions because these terms are time-sensitive.
+- explicit tag registration is acceptable;
+- the team can operate its own configuration and evidence backend;
+- source transparency and self-hosting matter;
+- the application uses a supported web or server framework;
+- the team accepts beta maturity and can test each deployment.
 
-## Build path to production parity
+## Choose a paid CMP when
 
-1. **0.2/0.3 alpha:** shared decisions, GPC parsing, React/Vue/Express/Spring starters, a transparent interactive demo, and explicit managed-tag pre-blocking.
-2. **0.3:** authoritative receipt service, withdrawal events, downstream propagation, version invalidation, accessibility and security tests.
-3. **0.4:** tag and Cookie discovery, production pre-blocking adapters, Google Consent Mode, vendor catalog, and deployment monitoring.
-4. **0.5+:** IAB TCF/GPP, analytics, multi-tenant governance, key rotation, incident controls, and production legal/security review.
+- automatic scanning and vendor discovery are required;
+- IAB standards, mobile SDKs, multi-site administration, reporting, or support are procurement requirements;
+- the organisation needs a managed evidence service and operational SLA;
+- privacy operations cannot own the integration and monitoring work.
 
-openConsent should keep public rules, self-hosting, reproducible evidence, and AI/agent permission decisions as its differentiators instead of copying a closed CMP screen-for-screen.
+Some teams may use openConsent for transparent application-level decisions while retaining a commercial platform for enterprise operations. Avoid running two independent browser banners or tag loaders; define one authoritative preference flow and test the combined request order.
 
-## Official sources
+## What must exist before broader parity
+
+1. Public npm release and reproducible Plain HTML/framework fixtures.
+2. Self-hosted protected receipt service and retryable withdrawal propagation.
+3. Reviewable script, Cookie, pixel, iframe, and vendor discovery.
+4. Standards evaluation and conformance where IAB TCF/GPP is required.
+5. Operational monitoring, multi-site controls, security review, and documented incident handling.
+6. Independent legal review of the supported policy packs and UI defaults.
+
+openConsent should keep self-hosting, public rules, reproducible tests, and open governance as its differentiators instead of imitating a proprietary dashboard feature for feature.
+
+## Official vendor sources
 
 - [consentmanager plan and feature comparison](https://www.consentmanager.net/en/features/)
 - [consentmanager product overview](https://www.consentmanager.net/en/)
@@ -53,4 +64,4 @@ openConsent should keep public rules, self-hosting, reproducible evidence, and A
 - [Google Consent Mode v2 integration](https://www.help.consentmanager.net/books/cmp/page/working-with-google-consent-mode-v2-automatic-blocking-code)
 - [CCPA message setup](https://www.consentmanager.net/en/help/getting-started/3-create-a-cmp/)
 
-This comparison describes product capability and public vendor claims. It is not legal advice or an evaluation that either product is sufficient for a particular deployment.
+This comparison describes product capability and public vendor claims. It is not legal advice or an assessment that either product is sufficient for a particular deployment.
