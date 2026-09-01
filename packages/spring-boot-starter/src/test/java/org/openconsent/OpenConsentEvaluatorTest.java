@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 class OpenConsentEvaluatorTest {
   private final OpenConsentEvaluator evaluator = new OpenConsentEvaluator("policy-2", Map.of(
-    "analytics", new OpenConsentPurpose("analytics", "consent", false, false),
-    "ads", new OpenConsentPurpose("ads", "consent", true, true),
+    "analytics", new OpenConsentPurpose("analytics", "measurement", "product-usage", "Usage metrics", "Measure aggregate usage.", "consent", true, false, false),
+    "ads", new OpenConsentPurpose("ads", "advertising", "cross-context-sharing", "Cross-context sharing", "Share data across contexts.", "consent", true, true, true),
     "service", new OpenConsentPurpose("service", "contract", false, false)
   ));
 

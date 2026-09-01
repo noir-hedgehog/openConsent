@@ -2,15 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Cookie, RefreshCw, Settings2, ShieldCheck, Terminal } from 'lucide-react';
 import OpenConsent from '@openconsent/web';
 import type { ConsentSnapshot, OpenConsentClient, PreferenceReceipt } from '@openconsent/web';
+import { sitePolicy } from './site-policy';
 
-const policy = {
-  projectId: 'openconsent-playground', policyVersion: 'playground-1', noticeVersion: 'playground-notice-1', manifestDigest: 'sha256:playground',
-  purposes: [
-    { id: 'essential', activityId: 'serve-playground', legalBasis: 'legitimate-interest', optional: false, label: { en: 'Required technology', zh: '必要技术' }, description: { en: 'Runs the playground and stores your privacy choice.', zh: '用于运行 Playground 并保存你的隐私选择。' } },
-    { id: 'optional-analytics', activityId: 'product-analytics', legalBasis: 'consent', optional: true },
-    { id: 'personalized-ads', activityId: 'advertising', legalBasis: 'consent', optional: true, sale: true, sharing: true },
-  ],
-};
+const policy = { ...sitePolicy, projectId: 'openconsent-playground', policyVersion: 'playground-2', noticeVersion: 'playground-notice-2', manifestDigest: 'sha256:playground-catalog' };
+const purposeIds = policy.purposes.map(purpose => purpose.id);
 
 export default function Playground() {
   const client = useRef<OpenConsentClient | null>(null);
@@ -19,8 +14,8 @@ export default function Playground() {
   const [events, setEvents] = useState<Array<{ at: string; action: string; choices: string }>>([]);
   const [decisions, setDecisions] = useState<Array<[string, { outcome: string; reason: string }]>>([]);
   useEffect(() => {
-    const current = OpenConsent.init({ policy, locale: 'en', banner: { position: 'bottom', theme: 'auto' }, onPreferenceChange(next) { setReceipt(next); setEvents(rows => [{ at: new Date().toLocaleTimeString(), action: next.action, choices: JSON.stringify(next.choices) }, ...rows].slice(0, 8)); } });
-    const update = (next: ConsentSnapshot) => { setSnapshot(next); setDecisions(['essential','optional-analytics','personalized-ads'].map(id => { const result = current.evaluate(id); return [id, { outcome: result.outcome, reason: result.reason }]; })); };
+    const current = OpenConsent.init({ policy: policy as never, locale: 'en', banner: { position: 'bottom', theme: 'auto' }, onPreferenceChange(next) { setReceipt(next); setEvents(rows => [{ at: new Date().toLocaleTimeString(), action: next.action, choices: JSON.stringify(next.choices) }, ...rows].slice(0, 8)); } });
+    const update = (next: ConsentSnapshot) => { setSnapshot(next); setDecisions(purposeIds.map(id => { const result = current.evaluate(id); return [id, { outcome: result.outcome, reason: result.reason }]; })); };
     client.current = current; queueMicrotask(() => update(current.getSnapshot())); const unsubscribe = current.subscribe(update);
     return () => { unsubscribe(); current.destroy(); };
   }, []);
@@ -31,10 +26,10 @@ export default function Playground() {
     <section className="pg-grid">
       <article><div className="card-head"><Terminal/>Runtime snapshot</div><pre>{JSON.stringify(snapshot, null, 2)}</pre></article>
       <article><div className="card-head"><CheckCircle2/>Current decisions</div><div className="decision-list">{decisions.map(([id, decision]) => <div key={id}><div><strong>{id}</strong><small>{decision?.reason ?? 'RUNTIME_STARTING'}</small></div><span className={decision?.outcome}>{decision?.outcome ?? '…'}</span></div>)}</div></article>
-      <article><div className="card-head"><Cookie/>Managed browser state</div><div className="browser-list"><div><span>analytics-demo.js</span><b>{snapshot?.choices['optional-analytics'] === 'granted' ? 'eligible' : 'blocked'}</b></div><div><span>ads-demo.js</span><b>{snapshot?.choices['personalized-ads'] === 'granted' && !snapshot?.signals.gpc ? 'eligible' : 'blocked'}</b></div><div><span>oc_demo_analytics</span><b>{document.cookie.includes('oc_demo_analytics=') ? 'present' : 'absent'}</b></div><div><span>oc_demo_ads</span><b>{document.cookie.includes('oc_demo_ads=') ? 'present' : 'absent'}</b></div></div></article>
+      <article><div className="card-head"><Cookie/>Managed browser state</div><div className="browser-list"><div><span>preferences-demo.js</span><b>{snapshot?.choices['interface-preferences'] === 'granted' ? 'eligible' : 'blocked'}</b></div><div><span>Google Analytics example</span><b>{snapshot?.choices['site-analytics'] === 'granted' ? 'purpose allowed' : 'blocked'}</b></div><div><span>Google Ads example</span><b>{snapshot?.choices['ads-measurement'] === 'granted' && !snapshot?.signals.gpc ? 'purpose allowed' : 'blocked'}</b></div><div><span>oc_demo_preferences</span><b>{document.cookie.includes('oc_demo_preferences=') ? 'present' : 'absent'}</b></div></div></article>
       <article><div className="card-head"><ShieldCheck/>Latest unsigned receipt</div><pre>{receipt ? JSON.stringify(receipt, null, 2) : 'No saved preference in this session.'}</pre></article>
     </section>
     <section className="events"><div className="card-head">Preference events</div>{events.length ? events.map((event,index) => <div key={`${event.at}-${index}`}><time>{event.at}</time><strong>{event.action}</strong><code>{event.choices}</code></div>) : <p>Save a choice to create the first event.</p>}</section>
-    <p className="pg-note">This playground uses first-party fixture scripts. It does not contact Google unless you provide Google IDs in the product configuration.</p>
+    <p className="pg-note">This inspector uses the same disclosure catalog as the official site. Google loading belongs to the product website example adapter, not to the SDK or this playground.</p>
   </main>;
 }

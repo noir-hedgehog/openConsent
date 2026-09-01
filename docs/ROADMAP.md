@@ -1,60 +1,102 @@
-# Product roadmap
+# Public product roadmap
 
-openConsent is an open-source CMP SDK for AI and SaaS teams. The roadmap grows from a small, verifiable browser and server contract; it does not present future AI, scanning, or enterprise capabilities as shipped.
+The [bilingual public Roadmap](https://noir-hedgehog.github.io/openConsent/roadmap/) is the user-facing source for capability status. This document records the same scope and evidence gates for maintainers.
 
-## 0.3 beta — usable consent SDK
+openConsent uses four status labels:
 
-Target: a developer can add an accessible Banner and explicit optional-tag blocking to a Plain HTML, React, or Vue application in five minutes.
+- **Shipped:** implemented, documented, and covered by the named test boundary.
+- **Building:** active implementation work that is not a shipped product claim.
+- **Planned:** accepted product direction without a shipped implementation.
+- **Research:** an investigation that may change or be rejected.
 
-- Publish `@openconsent/web` as ESM and browser IIFE.
-- Align Core, React, Vue, and Express packages at `0.3.0-beta.1`.
-- Persist versioned preferences and fail closed on stale or invalid state.
-- Support GPC for configured sale/sharing purposes.
-- Integrate GA4 and Google Ads through denied defaults and grant updates.
-- Provide React and Vue Banner components.
-- Test first visit, per-purpose choice, withdrawal, version changes, mobile, keyboard, accessibility, and Google command order.
-- Publish packages through npm Trusted Publishing with provenance.
+## 0.4.0-beta.1 — public catalog
 
-Release gate: the documented Plain HTML install works from the public npm artifact; a first visit makes no optional vendor request; every public package passes its build and `npm pack --dry-run` checks.
+Shipped scope:
 
-## 0.4 — operational self-hosting
+- English and Chinese Banner and Preference Center.
+- Versioned local preferences and stale policy/notice invalidation.
+- Explicit managed-script pre-blocking, withdrawal aborts, and cleanup hooks.
+- Browser and server GPC evaluation for declared sale/sharing purposes.
+- React, Vue, Express, and Spring integration surfaces.
+- A top-level policy catalog: `categories`, `purposes`, `vendors`, `services`, and `trackers`.
+- Public Roadmap and Cookie Declaration pages.
+- Purpose-level, manifest-bound preference callbacks for protected application storage.
 
-Target: teams can operate their own consent evidence and configuration service without adopting a proprietary control plane.
+The catalog contract keeps all five collections directly under `policy`. Categories do not duplicate purpose IDs. Services do not carry a category ID. Trackers declare `kind`, `purposeIds`, and `firstParty`.
 
-- Versioned policy/configuration endpoint and migration contract.
-- Reference receipt API with authenticated subject binding, retention controls, and append-only events.
-- Retryable withdrawal webhooks and downstream processor adapters.
-- Multi-site configuration without making the hosted service mandatory.
-- Deployment health checks and reference observability.
-- Signed release artifacts, SBOM, security review, and incident process.
+Google Analytics and Google Ads remain **official-website example adapter code**. They are not included in the `@openconsent/web` public contract. The example is tested for denied defaults and purpose-gated loading, while each deployment owns its Google configuration and Cookie declaration.
 
-Release gate: a self-hosted reference deployment survives retries, stale clients, and partial downstream failures without silently widening consent.
+0.4 release evidence requires:
 
-## 0.5 — discovery and standards
+- every documented artifact URL resolves;
+- the Plain HTML tarball executes in an independent browser fixture;
+- first visit makes no optional third-party request;
+- accept, reject, granular save, reload, stale policy, withdrawal, GPC, keyboard, and mobile flows pass;
+- the public technology catalog matches the official site's first-party and conditional technologies;
+- no individual preference receipt appears on a public page.
 
-Target: reduce integration omissions while keeping discoveries reviewable.
+## Capability and gap matrix
 
-- Optional crawler for scripts, Cookies, pixels, iframes, and outbound hosts.
-- Proposed purpose/vendor mappings with source location and confidence.
-- Vendor catalog and policy-change impact reports.
-- Evaluate IAB TCF and GPP support against governance, licensing, and conformance requirements.
-- Add mobile integration only after the shared receipt and withdrawal contract is stable.
+| Capability | Status | Evidence today | Next gate |
+| --- | --- | --- | --- |
+| Banner and Preference Center | Shipped | Bilingual web runtime and browser E2E | Independent accessibility review |
+| Explicit tag pre-blocking | Shipped | Managed-script and withdrawal tests | Broader vendor and race fixtures |
+| Versioned browser preferences | Shipped | Storage schema and stale-version tests | Stable migration policy |
+| GPC sale/share override | Shipped | Browser and server evaluators | 0.5 regional rule packs |
+| Public technology catalog | Shipped | Top-level catalog and official-site declaration | Automated deployment/catalog validation |
+| GA4 and Google Ads | Shipped website example | Application adapter and command-order test | Remain outside the reusable SDK contract |
+| React, Vue, Express, and Spring | Shipped | Components, adapters, and conformance tests | Independent framework example applications |
+| Self-hosted evidence API and withdrawal retries | Building | Purpose-level browser event and implementation plan | 0.5 protected API, identity binding, and retry visibility |
+| Regional rules and multi-site governance | Planned | Single-policy deployment examples | 0.5 rule packs and multi-site configuration |
+| Hosted consent log and geolocation | Planned | Not implemented; no openConsent cloud service | Evaluate after the self-hosted 0.5 reference path |
+| Maintained vendor database and admin console | Planned | Not implemented | Open data provenance and governance proposal |
+| Automatic tracker discovery | Planned | No shipped scanner | 0.6 unclassified-tracker review and change monitoring |
+| Reviewable AI classification suggestions | Planned | Deterministic Privacy Readiness Checks only | 0.6 evidence-linked proposals with human approval |
+| IAB certification, TCF/GPP, mobile, and cross-device consent | Research | Not implemented or certified | 1.0 research and enterprise readiness review |
 
-Release gate: discoveries are reproducible and remain proposals until a human approves them; unknowns are never auto-classified as compliant.
+## 0.5 — self-hosted operations
 
-## Future research
+- Self-hosted evidence API with authenticated or pseudonymous subject binding.
+- Append-only choice and withdrawal events with retention and access controls.
+- Retryable downstream withdrawal propagation and visible failures.
+- Regional rule packs with explicit applicability review.
+- Multi-site configuration and governance.
 
-- AI-assisted privacy audits that explain code and configuration findings.
-- Agent/tool policy decisions separated from user consent and delegation.
-- Privacy-request workflows and public transparency reports.
-- Enterprise reporting, reviewer roles, and independently assessed control packs.
+Gate: retries, stale clients, regional policy selection, and partial downstream failures never silently widen a withdrawn purpose.
 
-These items are research directions. The current **Privacy Readiness Checks** are deterministic CLI/CI checks, not an AI legal reviewer.
+## 0.6 — reviewable discovery
+
+- Automatic scanning for scripts, Cookies, pixels, iframes, and outbound hosts.
+- An explicit queue for unclassified trackers.
+- Catalog and implementation change monitoring.
+- Reviewable AI classification suggestions with source location, evidence, and confidence.
+
+Gate: discoveries and AI suggestions remain proposals until a human approves them. Unknown trackers are never auto-classified as compliant.
+
+## 1.0 — research and enterprise review
+
+The following remain research until standards, licensing, interoperability, privacy, and conformance work supports a product decision:
+
+- IAB TCF and GPP;
+- mobile SDKs;
+- cross-device consent reconciliation;
+- enterprise security, accessibility, privacy, and legal readiness review.
+
+Research status is not a promise that every item will ship in 1.0. A stable release still requires a compatibility policy, signed releases, reproducible evidence, and production validation.
 
 ## Permanent boundaries
 
 - No “100% compliant” score, legal certification, or automatic applicability decision.
-- Consent remains distinct from contract, legitimate interests, and other legal bases.
+- Consent remains distinct from contract, legitimate interests, and agent delegation.
 - Rules, sources, limitations, release history, and conformance tests stay public.
-- Personal receipts, privacy requests, prompts, identifiers, credentials, and protected evidence do not become public transparency data.
+- A public technology catalog never exposes a person's receipt, identifier, IP address, or choice.
 - Self-hosting remains viable; no required paid cloud control plane.
+
+## Primary references
+
+- [GDPR official text — EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj)
+- [California Privacy Protection Agency regulations](https://cppa.ca.gov/regulations/)
+- [Global Privacy Control specification](https://globalprivacycontrol.org/)
+- [Google Consent Mode documentation](https://developers.google.com/tag-platform/security/guides/consent)
+
+These sources inform engineering requirements. They do not replace jurisdiction-specific legal review.

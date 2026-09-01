@@ -1,6 +1,6 @@
 # Architecture
 
-openConsent separates browser presentation, deterministic decisions, integrations, server evidence, and readiness checks. A Banner cannot redefine policy rules, and an unsigned browser receipt cannot become authoritative evidence by itself.
+openConsent separates browser presentation, deterministic decisions, application-owned vendor adapters, protected server evidence, public declarations, and readiness checks. A Banner cannot redefine policy rules, and an unsigned browser receipt cannot become authoritative evidence by itself.
 
 ## Runtime shape
 
@@ -12,9 +12,11 @@ flowchart LR
   Core --> Web
   Web --> UI[Banner and Preference Center]
   Web --> Tags[Explicit managed tags]
-  Web --> Google[Google Consent Mode]
+  Web --> Callback[Purpose-level callback]
+  Callback --> SiteAdapter[Application vendor adapter]
+  SiteAdapter --> Google[Website Google example]
   Web --> Receipt[Unsigned preference receipt]
-  Receipt --> AppAPI[Application backend]
+  Receipt --> AppAPI[Protected application backend]
   AppAPI --> Store[(Protected evidence store)]
   Core --> React[React adapter]
   Core --> Vue[Vue adapter]
@@ -29,7 +31,7 @@ The browser starts optional purposes in a denied state. It restores choices only
 | Package/module | Owns | Does not own |
 | --- | --- | --- |
 | `@openconsent/core` | Purpose evaluation, choice state, GPC override, deterministic decisions | DOM, network tags, persistence, authoritative evidence |
-| `@openconsent/web` | Banner, Preference Center, browser persistence, managed scripts, Google integrations, unsigned receipt callback | Identity, protected receipt storage, legal applicability |
+| `@openconsent/web` | Banner, Preference Center, browser persistence, managed scripts, GPC, purpose-level unsigned callback | Vendor-specific loaders, identity, protected receipt storage, legal applicability |
 | `@openconsent/react` | Provider, Banner, gates, hooks | Tags created outside its component tree |
 | `@openconsent/vue` | Plugin, Banner, gates, composable | Tags created outside its application lifecycle |
 | `@openconsent/express` | Request decisions and server-observed GPC | Authentication, subject mapping, durable store |
@@ -50,15 +52,17 @@ An optional browser script is inert markup until openConsent grants its purpose:
 
 The runtime validates the purpose, creates one active script for an allowed choice, and avoids duplicate activation on repeated initialization or repeated grants. Withdrawal removes runtime-owned elements where possible and prevents new managed requests. Browser code cannot recall data already sent during a prior grant, so production integrations also need downstream deletion and retention behavior.
 
-## Google integration order
+## Website Google example boundary
 
-1. Install the `gtag` command queue.
-2. Set Consent Mode storage fields to denied.
-3. Wait for the matching openConsent purpose decision.
-4. Load and configure the requested Google tag after a grant.
-5. Send granted or denied updates when preferences change.
+The official website owns an example adapter outside the SDK. The adapter:
 
-GA4 maps to `optional-analytics`. Google Ads maps to `personalized-ads`. A deployment must not add a second unconditional Google snippet.
+1. installs the `gtag` command queue;
+2. sets Consent Mode storage fields to denied;
+3. subscribes to the matching openConsent purpose;
+4. loads and configures the requested Google tag after a grant;
+5. sends granted or denied updates when preferences change.
+
+The website maps GA4 to `optional-analytics` and Google Ads to `personalized-ads`. Those names and mappings are examples, not `@openconsent/web` defaults. A deployment must not add a second unconditional Google snippet and must publish its own Cookie declaration.
 
 ## Receipt and trust boundary
 
@@ -96,8 +100,9 @@ Future scanners may locate probable data flows, cite source files, and propose c
 
 ## Deployment
 
-- **Current:** npm/browser packages, local or self-hosted configuration, official static website, and repository CLI/CI.
-- **Reference next step:** optional self-hosted configuration and protected receipt service with withdrawal webhooks.
-- **Later research:** reviewable discovery, standards support, AI-assisted audits, and agent policy decisions separated from user consent.
+- **Current:** npm/browser packages, local or self-hosted configuration, official static website, public Roadmap and Cookie Declaration, and repository CLI/CI.
+- **0.5 building:** self-hosted evidence API, retryable withdrawal, regional rule packs, and multi-site governance.
+- **0.6 planned:** automatic scanning, unclassified-tracker review, change monitoring, and evidence-linked AI classification suggestions requiring human approval.
+- **1.0 research:** IAB TCF/GPP, mobile, cross-device consent, and enterprise readiness review; agent policy decisions remain separate from user consent.
 
 The public website is a product and demo surface. Detailed events, decision evidence, and integration diagnostics belong in the Playground. Internal progress reports and future capability lists belong in project documentation and changelogs.

@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openconsent</groupId><artifactId>openconsent-spring-boot-starter</artifactId><version>0.3.0-beta.1</version>
+  <groupId>org.openconsent</groupId><artifactId>openconsent-spring-boot-starter</artifactId><version>0.4.0-beta.1</version>
   <name>openConsent Spring Boot Starter</name>
   <description>Spring Boot request filtering and server-side consent decisions for openConsent.</description>
   <url>https://github.com/noir-hedgehog/openConsent</url>

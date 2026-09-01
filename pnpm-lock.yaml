@@ -66,7 +66,7 @@ importers:
   packages/express:
     dependencies:
       '@openconsent/core':
-        specifier: workspace:*
+        specifier: workspace:0.4.0-beta.1
         version: link:../core
       express:
         specifier: '>=4'
@@ -75,10 +75,10 @@ importers:
   packages/react:
     dependencies:
       '@openconsent/core':
-        specifier: workspace:*
+        specifier: workspace:0.4.0-beta.1
         version: link:../core
       '@openconsent/web':
-        specifier: workspace:*
+        specifier: workspace:0.4.0-beta.1
         version: link:../web
       react:
         specifier: '>=18'
@@ -87,10 +87,10 @@ importers:
   packages/vue:
     dependencies:
       '@openconsent/core':
-        specifier: workspace:*
+        specifier: workspace:0.4.0-beta.1
         version: link:../core
       '@openconsent/web':
-        specifier: workspace:*
+        specifier: workspace:0.4.0-beta.1
         version: link:../web
       vue:
         specifier: '>=3.3'

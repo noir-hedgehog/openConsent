@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0-beta.1 - 2026-09-01
+
+- Add a validated, localized disclosure Catalog with categories, purposes, vendors, services, and Cookie/Tracker details.
+- Add purpose-backed category states and bulk category choices while preserving purpose-level receipts and decisions.
+- Replace the Preference Center with Consent, Details, and About views, plus a persistent privacy trigger.
+- Add service-aware managed tags that fail closed for unknown or mismatched service-to-purpose mappings.
+- Remove Google Analytics and Ads special handling from `@openconsent/web`; the official website now demonstrates a generic consent subscriber controlling its own Google tags.
+- Publish standalone Cookie Declaration and Roadmap pages with explicit commercial-CMP gaps.
+- Add the `web-cmp` Privacy Readiness Checks profile and align React, Vue, Express, and Spring surfaces to the 0.4 purpose model.
+
 ## 0.3.0-beta.1 - 2026-09-01
 
 - Reposition openConsent as a free, open-source consent-management SDK for AI and SaaS teams.

@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Free, open-source consent management for AI and SaaS teams. Add a cookie banner, tag blocking, Google Consent Mode, and GDPR/CCPA choices." />
+    <meta name="description" content="Free, open-source consent management for AI and SaaS teams. Add a Cookie Banner, optional tag blocking, and transparent category, vendor, and tracker disclosure." />
     <meta name="theme-color" content="#195e43" />
     <link rel="icon" href="%BASE_URL%favicon.svg" />
     <title>openConsent — Open-source consent management</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="text/plain" data-openconsent-purpose="optional-analytics" data-openconsent-src="%BASE_URL%vendors/analytics-demo.js" data-openconsent-cleanup="openConsentCleanupAnalytics"></script>
-    <script type="text/plain" data-openconsent-purpose="personalized-ads" data-openconsent-src="%BASE_URL%vendors/ads-demo.js" data-openconsent-cleanup="openConsentCleanupAds"></script>
+    <script type="text/plain" data-openconsent-purpose="interface-preferences" data-openconsent-service="interface-demo" data-openconsent-src="%BASE_URL%vendors/preferences-demo.js" data-openconsent-cleanup="openConsentCleanupPreferences"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

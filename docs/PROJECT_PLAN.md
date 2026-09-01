@@ -2,9 +2,9 @@
 
 ## Product decision
 
-openConsent is a **free, open-source consent management SDK for modern web applications**. It helps AI and SaaS teams add a Cookie Banner, Preference Center, explicit optional-tag blocking, Google Consent Mode, and consistent browser/server decisions without adopting a paid hosted CMP.
+openConsent is a **free, open-source consent management SDK for modern web applications**. It helps AI and SaaS teams add a Cookie Banner, Preference Center, explicit optional-tag blocking, GPC handling, public technology declarations, and consistent browser/server decisions without adopting a paid hosted CMP.
 
-The immediate product is the consent runtime. The existing deterministic CLI/CI capability is named **Privacy Readiness Checks** and supports the product; it is not presented as an AI audit or legal certification. AI-assisted scanning and agent policy enforcement remain future research in [the roadmap](ROADMAP.md).
+The immediate product is the consent runtime and its public technology catalog. The existing deterministic CLI/CI capability is named **Privacy Readiness Checks** and supports the product; it is not presented as an AI audit or legal certification. Reviewable AI classification suggestions are planned for 0.6, while autonomous legal conclusions and agent policy enforcement remain outside the shipped product in [the roadmap](ROADMAP.md).
 
 ## Primary users and jobs
 
@@ -26,7 +26,7 @@ The immediate product is the consent runtime. The existing deterministic CLI/CI 
 6. **Self-hosting stays viable.** The core product does not require a paid cloud control plane.
 7. **Claims follow tests.** Marketing states only behavior covered by the implementation and release checks.
 
-## 0.3 beta scope
+## 0.4 beta scope
 
 Included:
 
@@ -35,17 +35,18 @@ Included:
 - Versioned `localStorage` preferences and policy/notice invalidation.
 - Explicit managed-script activation by purpose.
 - GPC enforcement for configured sale/sharing purposes.
-- GA4 and Google Ads integration with Consent Mode defaults and updates.
+- A top-level policy catalog containing `categories`, `purposes`, `vendors`, `services`, and `trackers`.
+- Application-owned vendor adapters driven by purpose callbacks. The official website's GA4/Ads Consent Mode adapter is example code, not an `@openconsent/web` capability.
 - React and Vue components plus shared core decisions.
 - Express and Spring server integration starters.
 - Deterministic GDPR and CCPA/CPRA Privacy Readiness Checks.
-- Official GitHub Pages website, live demo, diagnostic Playground, and public limitations.
+- Official GitHub Pages website, live demo, diagnostic Playground, public Roadmap, Cookie Declaration, and public limitations.
 
 Excluded:
 
 - Automatic discovery or blocking of every Cookie, pixel, iframe, server event, or vendor.
 - Legal advice, certification, automatic applicability decisions, or a “100% compliant” score.
-- IAB TCF/GPP, mobile SDKs, vendor catalogs, rights-request automation, enterprise reporting, or a hosted multi-tenant control plane.
+- IAB TCF/GPP, mobile SDKs, a managed vendor-template library, rights-request automation, enterprise reporting, or a hosted multi-tenant control plane.
 - Authoritative receipt storage, subject identity, cryptographic attestation, and guaranteed downstream deletion.
 - AI legal review or automatic approval of scanner findings.
 
@@ -57,7 +58,9 @@ Excluded:
 - Accept, reject, purpose-only save, settings reopen, reload restoration, and withdrawal pass browser tests.
 - Policy or notice changes invalidate old preferences and fail closed.
 - GPC overrides configured sale/sharing grants.
-- Google Consent Mode command order is tested.
+- The official website Google example tests denied defaults and command order without making Google part of SDK conformance.
+- The public Cookie catalog matches the official deployment and contains no individual preference receipt.
+- The public catalog exposes the category → purpose → service → vendor → tracker relationship without exposing a visitor record.
 - English, Chinese, mobile, keyboard, focus, and accessible names pass the release checks.
 - Every JavaScript package builds and passes `npm pack --dry-run`.
 - Rules, limitations, and package provenance are public.
@@ -65,3 +68,5 @@ Excluded:
 ## Release ownership
 
 Maintainers control npm scope creation, Trusted Publisher configuration, release tags, legal review, and the decision to call a beta stable. See [the SDK publishing guide](SDK.md#publishing-and-provenance) and [the roadmap](ROADMAP.md).
+
+The release path is fixed at this level: 0.4 ships the catalog; 0.5 builds the self-hosted evidence API, retryable withdrawal, regional rules, and multi-site governance; 0.6 plans automatic scanning, unclassified-tracker review, change monitoring, and reviewable AI classification suggestions; 1.0 keeps IAB TCF/GPP, mobile, cross-device consent, and enterprise readiness review in research until validated.

@@ -1,70 +1,48 @@
 export type Choice = 'granted' | 'denied' | 'unset';
 export type SavedChoice = Exclude<Choice, 'unset'>;
-export type Decision = {
-  outcome: 'allow' | 'deny' | 'requires_review';
-  purposeId: string;
-  reason: string;
-  ruleId: string;
-  policyVersion: string;
-  receiptId?: string | null;
-  evaluatedAt: string;
+export type LocalizedText = string | Readonly<Record<string, string>>;
+export type CategoryState = 'required' | 'granted' | 'denied' | 'mixed' | 'unset';
+export type Decision = { outcome: 'allow' | 'deny' | 'requires_review'; purposeId: string; reason: string; ruleId: string; policyVersion: string; receiptId?: string | null; evaluatedAt: string };
+export type Purpose = { id: string; activityId: string; legalBasis: string; optional: boolean; sale?: boolean; sharing?: boolean; categoryId?: string; label?: LocalizedText; description?: LocalizedText };
+export type CatalogPurposeDefinition = Omit<Purpose, 'categoryId' | 'label' | 'description'> & { categoryId: string; label: LocalizedText; description: LocalizedText };
+export type CategoryDefinition = { id: string; label: LocalizedText; description: LocalizedText; required: boolean; order?: number };
+export type VendorDefinition = { id: string; name: LocalizedText; description?: LocalizedText; privacyPolicyUrl: string };
+export type ServiceDefinition = { id: string; name: LocalizedText; description?: LocalizedText; vendorId: string; purposeIds: readonly string[] };
+export type TrackerKind = 'cookie' | 'script' | 'pixel' | 'iframe' | 'local-storage' | 'session-storage' | 'other';
+export type TrackerType = TrackerKind;
+export type TrackerDefinition = { id: string; name: LocalizedText; kind: TrackerKind; serviceId: string; purposeIds: readonly string[]; domain?: string; duration?: string; firstParty: boolean; description?: LocalizedText };
+export type CatalogCategory = { id: string; label: string; description: string; purposeIds: string[]; required: boolean; order?: number };
+export type CatalogVendor = { id: string; name: string; description: string; privacyPolicyUrl?: string };
+export type CatalogService = { id: string; name: string; description: string; vendorId: string; purposeIds: string[]; categoryIds: string[]; categoryId?: string; trackerIds: string[] };
+export type CatalogTracker = { id: string; name: string; kind: TrackerKind; serviceId: string; purposeIds: string[]; domain?: string; duration?: string; firstParty: boolean; description: string };
+export type ConsentCatalog = { projectId: string; policyVersion: string; noticeVersion: string; updatedAt?: string; privacyPolicyUrl?: string; contact?: string; categories: CatalogCategory[]; vendors: CatalogVendor[]; services: CatalogService[]; trackers: CatalogTracker[]; legacy: boolean };
+export type RuntimePolicyMetadata = { projectId: string; policyVersion: string; noticeVersion: string; manifestDigest: string; updatedAt?: string; privacyPolicyUrl?: string; contact?: LocalizedText };
+export type CompatibilityCatalog = {
+  categories?: readonly ({ id: string; label?: LocalizedText; description?: LocalizedText; required?: boolean; order?: number; purposeIds?: readonly string[] })[];
+  vendors?: readonly ({ id: string; name?: LocalizedText; description?: LocalizedText; privacyPolicyUrl?: string })[];
+  services?: readonly ({ id: string; name?: LocalizedText; description?: LocalizedText; vendorId?: string; purposeIds?: readonly string[]; categoryId?: string })[];
+  trackers?: readonly ({ id: string; name?: LocalizedText; description?: LocalizedText; serviceId: string; purposeIds?: readonly string[]; kind?: TrackerKind; type?: TrackerKind; domain?: string; duration?: string; firstParty?: boolean })[];
 };
-export type Purpose = {
-  id: string;
-  activityId: string;
-  legalBasis: string;
-  optional: boolean;
-  sale?: boolean;
-  sharing?: boolean;
-};
-export type RuntimePolicy = {
-  projectId: string;
-  policyVersion: string;
-  noticeVersion: string;
-  manifestDigest: string;
-  purposes: Purpose[];
-};
-export type PreferenceSnapshot = {
-  subjectRef: string;
-  revision: number;
-  choices: Record<string, Choice>;
-  signals: { gpc: boolean; [signal: string]: unknown };
-  policyVersion: string;
-  updatedAt: string;
-  receiptId: string | null;
-};
-export type PreferenceReceipt = {
-  receiptId: string;
-  previousReceiptId: string | null;
-  projectId: string;
-  policyVersion: string;
-  manifestDigest: string;
-  noticeVersion: string;
-  revision: number;
-  choices: Record<string, Choice>;
-  signalsObserved: PreferenceSnapshot['signals'];
-  action: 'save' | 'withdraw' | 'deny' | 'accept_all' | 'reject_optional';
-  source: string;
-  issuedAt: string;
-  unsigned: true;
-  storage: 'browser-memory-only';
-};
+/** Strict 0.4 disclosure model. All top-level collections and their required fields are validated at initialization. */
+export type CatalogRuntimePolicy = RuntimePolicyMetadata & { categories: readonly CategoryDefinition[]; purposes: readonly CatalogPurposeDefinition[]; vendors: readonly VendorDefinition[]; services: readonly ServiceDefinition[]; trackers: readonly TrackerDefinition[]; catalog?: CompatibilityCatalog };
+/** Legacy purpose-only and policy.catalog inputs remain supported during migration. */
+export type LegacyRuntimePolicy = RuntimePolicyMetadata & { purposes: readonly Purpose[]; catalog?: CompatibilityCatalog; categories?: never; vendors?: never; services?: never; trackers?: never };
+export type RuntimePolicy = CatalogRuntimePolicy | LegacyRuntimePolicy;
+export type PreferenceSnapshot = { subjectRef: string; revision: number; choices: Record<string, Choice>; categoryStates: Record<string, CategoryState>; signals: { gpc: boolean; [signal: string]: unknown }; policyVersion: string; updatedAt: string; receiptId: string | null };
+export type PreferenceReceipt = { receiptId: string; previousReceiptId: string | null; projectId: string; policyVersion: string; manifestDigest: string; noticeVersion: string; revision: number; choices: Record<string, Choice>; signalsObserved: PreferenceSnapshot['signals']; action: 'save' | 'withdraw' | 'deny' | 'accept_all' | 'reject_optional'; source: string; issuedAt: string; unsigned: true; storage: 'browser-memory-only' };
 export type RuntimeEvent = { eventId: string; type: string; at: string; [detail: string]: unknown };
-export type OpenConsentOptions = {
-  policy?: RuntimePolicy;
-  subjectRef?: string;
-  gpc?: boolean;
-  initialChoices?: Record<string, Choice>;
-  now?: () => string;
-};
+export type OpenConsentOptions = { policy?: RuntimePolicy; subjectRef?: string; gpc?: boolean; initialChoices?: Record<string, Choice>; locale?: string; now?: () => string };
 export type EvaluationOptions = { gpc?: boolean; now?: () => string };
 export type OpenConsentClient = {
   readonly policy: RuntimePolicy;
+  getCatalog(): ConsentCatalog;
   getSnapshot(): PreferenceSnapshot;
   getEvents(): RuntimeEvent[];
   subscribe(listener: (snapshot: PreferenceSnapshot) => void): () => void;
   setChoice(purposeId: string, choice: SavedChoice, source?: string): PreferenceReceipt;
   savePreferences(choices: Record<string, SavedChoice>, source?: string): PreferenceReceipt;
+  setCategory(categoryId: string, choice: SavedChoice, source?: string): PreferenceReceipt;
+  saveCategoryPreferences(choices: Record<string, SavedChoice>, source?: string): PreferenceReceipt;
   acceptAll(source?: string): PreferenceReceipt;
   rejectOptional(source?: string): PreferenceReceipt;
   setGpc(enabled: boolean, source?: string): void;
@@ -72,5 +50,8 @@ export type OpenConsentClient = {
   reset(): void;
 };
 export declare const DEFAULT_POLICY: RuntimePolicy;
+export declare function normalizeCatalog(policy: RuntimePolicy, locale?: string): ConsentCatalog;
+export declare function validateCatalog(policy: RuntimePolicy, locale?: string): ConsentCatalog;
+export declare function getCategoryStates(policy: RuntimePolicy, snapshot: Pick<PreferenceSnapshot, 'choices' | 'signals'>, catalog?: ConsentCatalog): Record<string, CategoryState>;
 export declare function evaluatePurpose(policy: RuntimePolicy, snapshot: PreferenceSnapshot, purposeId: string, options?: EvaluationOptions): Decision;
 export declare function createOpenConsent(options?: OpenConsentOptions): OpenConsentClient;

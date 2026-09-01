@@ -1,11 +1,14 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { Choice, Decision, OpenConsentClient as CoreClient, OpenConsentOptions as CoreOptions, PreferenceReceipt as CoreReceipt, PreferenceSnapshot as CoreSnapshot, SavedChoice } from '@openconsent/core';
+import type { CategoryState as CoreCategoryState, Choice, ConsentCatalog, Decision, OpenConsentClient as CoreClient, OpenConsentOptions as CoreOptions, PreferenceReceipt as CoreReceipt, PreferenceSnapshot as CoreSnapshot, SavedChoice } from '@openconsent/core';
 import type { ConsentSnapshot as WebSnapshot, OpenConsentClient as WebClient, OpenConsentOptions as WebOptions, PreferenceReceipt as WebReceipt } from '@openconsent/web';
 
 export type OpenConsentSdkClient = CoreClient | WebClient;
 export type OpenConsentSdkSnapshot = CoreSnapshot | WebSnapshot;
 export type OpenConsentSdkReceipt = CoreReceipt | WebReceipt;
 export type OpenConsentProviderOptions = (WebOptions | CoreOptions) & { runtime?: 'web' | 'memory' };
+export type DisclosureCatalog = ConsentCatalog;
+export type CategoryState = CoreCategoryState;
+export type CategoryChoice = SavedChoice;
 
 export type OpenConsentContextValue = {
   client: OpenConsentSdkClient;
@@ -13,6 +16,9 @@ export type OpenConsentContextValue = {
   can(purposeId: string): Decision;
   save(purposeId: string, choice: SavedChoice): OpenConsentSdkReceipt;
   savePreferences(choices: Record<string, SavedChoice>): OpenConsentSdkReceipt;
+  getCatalog(): DisclosureCatalog;
+  setCategory(categoryId: string, choice: CategoryChoice): OpenConsentSdkReceipt;
+  saveCategoryPreferences(choices: Record<string, CategoryChoice>): OpenConsentSdkReceipt;
   acceptAll(): OpenConsentSdkReceipt;
   rejectOptional(): OpenConsentSdkReceipt;
   setGpc(enabled: boolean): void;

@@ -3,13 +3,28 @@
   "locale": "en",
   "policy": {
     "projectId": "openconsent-iife-smoke",
-    "policyVersion": "2026-09-01",
-    "noticeVersion": "2026-09-01",
-    "manifestDigest": "sha256:iife-smoke",
+    "policyVersion": "0.4.0-beta.1",
+    "noticeVersion": "iife-notice-1",
+    "manifestDigest": "sha256:iife-catalog-smoke",
+    "updatedAt": "2026-09-01",
+    "privacyPolicyUrl": "https://example.com/privacy",
+    "categories": [
+      { "id": "necessary", "label": { "en": "Necessary", "zh": "必要" }, "description": "Required site operation.", "required": true, "order": 1 },
+      { "id": "analytics", "label": { "en": "Analytics", "zh": "分析" }, "description": "Optional usage measurement.", "required": false, "order": 2 }
+    ],
     "purposes": [
-      { "id": "required", "activityId": "site-operation", "legalBasis": "contract", "optional": false },
-      { "id": "optional-analytics", "activityId": "product-analytics", "legalBasis": "consent", "optional": true }
+      { "id": "site-operation", "categoryId": "necessary", "activityId": "site-operation", "label": "Site operation", "description": "Runs this fixture.", "legalBasis": "contract", "optional": false },
+      { "id": "optional-analytics", "categoryId": "analytics", "activityId": "product-analytics", "label": "Product analytics", "description": "Measures fixture use.", "legalBasis": "consent", "optional": true }
+    ],
+    "vendors": [
+      { "id": "fixture", "name": "Plain HTML Fixture", "description": "First-party fixture operator.", "privacyPolicyUrl": "https://example.com/privacy" }
+    ],
+    "services": [
+      { "id": "fixture-runtime", "name": "Fixture runtime", "vendorId": "fixture", "purposeIds": ["site-operation"], "description": "Runs the fixture." }
+    ],
+    "trackers": [
+      { "id": "preference-record", "name": "openconsent:openconsent-iife-smoke:preferences", "kind": "local-storage", "serviceId": "fixture-runtime", "purposeIds": ["site-operation"], "domain": "First-party browser storage", "duration": "Until reset", "firstParty": true, "description": "Stores versioned privacy choices." }
     ]
   },
-  "banner": { "position": "bottom", "theme": "auto" }
+  "banner": { "position": "bottom", "theme": "auto", "privacyPolicyUrl": "https://example.com/privacy" }
 }

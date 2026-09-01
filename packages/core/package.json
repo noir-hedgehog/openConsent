@@ -1,6 +1,6 @@
 {
   "name": "@openconsent/core",
-  "version": "0.3.0-beta.1",
+  "version": "0.4.0-beta.1",
   "description": "Framework-neutral runtime decisions for openConsent",
   "type": "module",
   "main": "./src/index.js",

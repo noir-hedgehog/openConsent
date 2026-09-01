@@ -9,7 +9,7 @@ The official website keeps the product story and live Banner demo simple. The se
 - purpose decisions before and after a choice;
 - managed-script activation and withdrawal;
 - Cookie and request state for first-party test fixtures;
-- Google Consent Mode command ordering when test IDs are configured;
+- Google Consent Mode command ordering from the official website example adapter when test IDs are configured;
 - the latest unsigned preference receipt;
 - diagnostic events useful for integration debugging.
 
@@ -17,7 +17,7 @@ The Playground is engineering evidence, not a compliance dashboard. A green stat
 
 ## Safe public behavior
 
-The deployed Playground uses local first-party fixtures unless a maintainer explicitly configures Google identifiers for the Pages build. A normal visit must not contact Google or another optional vendor before a matching grant.
+The deployed Playground uses local first-party fixtures unless a maintainer explicitly configures Google identifiers for the Pages build. That Google adapter is website example code, not part of `@openconsent/web`. A normal visit must not contact Google or another optional vendor before a matching grant.
 
 Do not put personal data, production identifiers, real receipts, raw prompts, credentials, or private evidence into the public Playground. Its event log is visible to the visitor.
 

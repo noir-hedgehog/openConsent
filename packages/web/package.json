@@ -1,7 +1,7 @@
 {
   "name": "@openconsent/web",
-  "version": "0.3.0-beta.1",
-  "description": "Consent banner, preference center, tag blocking, and Google Consent Mode for openConsent",
+  "version": "0.4.0-beta.1",
+  "description": "Consent banner, disclosure catalog, preference center, and service-aware tag blocking for openConsent",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

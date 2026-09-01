@@ -30,6 +30,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: node ./src/cli.mjs check ./examples/openconsent.json
+      - run: node ./src/cli.mjs check ./examples/openconsent.web.json --profile web-cmp
       - name: Build public packages
         run: pnpm build:packages
       - name: Inspect public package contents

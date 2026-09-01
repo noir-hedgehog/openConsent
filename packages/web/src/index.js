@@ -3,8 +3,7 @@ import { createOpenConsent } from '@openconsent/core';
 const STORAGE_SCHEMA_VERSION = 1;
 const DEFAULT_STORAGE_PREFIX = 'openconsent';
 const CHANGE_EVENT = 'openconsent:change';
-const MANAGED_SELECTOR = 'script[type="text/plain"][data-openconsent-purpose]';
-const GOOGLE_COOKIE_PREFIXES = ['_ga', '_gid', '_gat', '_gcl_', '_gac_'];
+const MANAGED_SELECTOR = 'script[type="text/plain"][data-openconsent-purpose],script[type="text/plain"][data-openconsent-service]';
 
 const messages = {
   en: {
@@ -19,7 +18,8 @@ const messages = {
     gpc: 'Disabled by your Global Privacy Control signal',
     save: 'Save preferences',
     close: 'Close',
-    privacy: 'Privacy policy'
+    privacy: 'Privacy policy', trigger: 'Privacy settings', consent: 'Consent', details: 'Details', services: 'Services', trackers: 'Trackers', about: 'About',
+    noServices: 'No services are declared.', noTrackers: 'No trackers are declared.', providedBy: 'Provided by', lastUpdated: 'Last updated', notice: 'Notice version', contact: 'Privacy contact', gpcStatus: 'Global Privacy Control', withdraw: 'Use this button at any time to review or withdraw consent.'
   },
   zh: {
     bannerTitle: '你的隐私选择',
@@ -33,7 +33,8 @@ const messages = {
     gpc: '已由你的全局隐私控制信号停用',
     save: '保存偏好',
     close: '关闭',
-    privacy: '隐私政策'
+    privacy: '隐私政策', trigger: '隐私设置', consent: '同意', details: '详情', services: '服务', trackers: '追踪器', about: '关于',
+    noServices: '未声明服务。', noTrackers: '未声明追踪器。', providedBy: '供应商', lastUpdated: '最近更新', notice: '通知版本', contact: '隐私联系人', gpcStatus: '全局隐私控制', withdraw: '你可以随时使用此按钮查看或撤回同意。'
   }
 };
 
@@ -51,6 +52,7 @@ const purposeNames = {
 const styles = `
 .oc-root,.oc-root *{box-sizing:border-box}.oc-root{--oc-bg:#fff;--oc-panel:#f7f7f4;--oc-text:#161815;--oc-muted:#5e625c;--oc-border:#d9ddd5;--oc-accent:#176b45;--oc-accent-text:#fff;position:relative;z-index:2147483000;color:var(--oc-text);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.oc-root[data-theme=dark]{--oc-bg:#171a17;--oc-panel:#222622;--oc-text:#f5f7f3;--oc-muted:#b7bdb4;--oc-border:#3b423a;--oc-accent:#65d39a;--oc-accent-text:#102018}@media(prefers-color-scheme:dark){.oc-root[data-theme=auto]{--oc-bg:#171a17;--oc-panel:#222622;--oc-text:#f5f7f3;--oc-muted:#b7bdb4;--oc-border:#3b423a;--oc-accent:#65d39a;--oc-accent-text:#102018}}.oc-banner{position:fixed;left:16px;right:16px;margin:auto;max-width:1120px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;padding:22px 24px;background:var(--oc-bg);border:1px solid var(--oc-border);border-radius:14px;box-shadow:0 18px 55px rgba(0,0,0,.18)}.oc-banner[data-position=bottom]{bottom:16px}.oc-banner[data-position=top]{top:16px}.oc-copy h2,.oc-dialog h2{font-size:18px;line-height:1.25;margin:0 0 6px}.oc-copy p,.oc-dialog-intro{color:var(--oc-muted);margin:0;max-width:720px}.oc-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.oc-button{appearance:none;border:1px solid var(--oc-border);border-radius:9px;background:var(--oc-bg);color:var(--oc-text);cursor:pointer;font:600 14px/1.2 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:11px 14px}.oc-button:hover{background:var(--oc-panel)}.oc-button:focus-visible,.oc-switch input:focus-visible+span{outline:3px solid color-mix(in srgb,var(--oc-accent) 45%,transparent);outline-offset:2px}.oc-primary{border-color:var(--oc-accent);background:var(--oc-accent);color:var(--oc-accent-text)}.oc-primary:hover{filter:brightness(.96);background:var(--oc-accent)}.oc-backdrop{position:fixed;inset:0;display:grid;place-items:center;padding:18px;background:rgba(12,15,12,.55)}.oc-dialog{width:min(620px,100%);max-height:min(760px,calc(100vh - 36px));overflow:auto;background:var(--oc-bg);border:1px solid var(--oc-border);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.28);padding:24px}.oc-dialog-head{display:flex;align-items:start;justify-content:space-between;gap:20px}.oc-icon-button{appearance:none;border:0;background:transparent;color:var(--oc-text);cursor:pointer;font-size:24px;line-height:1;padding:2px 6px}.oc-purposes{display:grid;gap:10px;margin:20px 0}.oc-purpose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:15px;background:var(--oc-panel);border:1px solid var(--oc-border);border-radius:11px}.oc-purpose strong{display:block;margin-bottom:2px}.oc-purpose p{color:var(--oc-muted);font-size:13px;margin:0}.oc-status{color:var(--oc-muted);font-size:12px;font-weight:700;white-space:nowrap}.oc-switch{display:inline-flex;align-items:center;cursor:pointer}.oc-switch input{position:absolute;opacity:0;pointer-events:none}.oc-switch span{width:42px;height:24px;border-radius:999px;background:#92978f;position:relative;transition:.16s ease}.oc-switch span:after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.16s ease}.oc-switch input:checked+span{background:var(--oc-accent)}.oc-switch input:checked+span:after{transform:translateX(18px)}.oc-switch input:disabled+span{cursor:not-allowed;opacity:.48}.oc-dialog-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}.oc-dialog-footer a{color:var(--oc-accent);font-weight:600}.oc-hidden{display:none!important}@media(max-width:760px){.oc-banner{grid-template-columns:1fr;gap:16px;left:10px;right:10px;padding:18px}.oc-actions{justify-content:stretch}.oc-actions .oc-button{flex:1 1 auto}.oc-dialog{padding:20px}.oc-dialog-footer{align-items:stretch;flex-direction:column}.oc-dialog-footer .oc-button{width:100%}}
 `;
+const catalogStyles = `.oc-tabs{display:flex;gap:4px;margin:20px 0 12px;padding:4px;background:var(--oc-panel);border-radius:10px}.oc-tab{flex:1;border:0;border-radius:7px;padding:9px;background:transparent;color:var(--oc-muted);font-weight:700;cursor:pointer}.oc-tab[aria-selected=true]{background:var(--oc-bg);color:var(--oc-text);box-shadow:0 1px 4px rgba(0,0,0,.1)}.oc-catalog-list{display:grid;gap:10px;margin:0 0 20px}.oc-catalog-row{padding:15px;background:var(--oc-panel);border:1px solid var(--oc-border);border-radius:11px}.oc-catalog-row-head{display:flex;justify-content:space-between;align-items:center;gap:16px}.oc-catalog-row strong{display:block}.oc-catalog-row p,.oc-catalog-row small{color:var(--oc-muted);margin:3px 0 0;font-size:12px}.oc-purpose-detail{margin-top:12px;padding-top:10px;border-top:1px solid var(--oc-border)}.oc-detail-tree{display:grid;gap:4px;margin:10px 0 0 12px;padding-left:12px;border-left:2px solid var(--oc-border)}.oc-detail-tree p{color:var(--oc-text)}.oc-badge{border-radius:999px;padding:4px 8px;background:var(--oc-bg);color:var(--oc-muted);font-size:11px}.oc-empty{padding:24px;text-align:center;color:var(--oc-muted)}.oc-meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--oc-muted);font-size:11px;margin-top:10px}.oc-privacy-trigger{position:fixed;right:16px;bottom:16px;border:1px solid var(--oc-border);border-radius:999px;background:var(--oc-bg);color:var(--oc-text);box-shadow:0 8px 25px rgba(0,0,0,.16);padding:10px 14px;font-weight:700;cursor:pointer}.oc-banner:not(.oc-hidden)~.oc-privacy-trigger{display:none}`;
 
 let activeClient = null;
 let activeFingerprint = null;
@@ -137,7 +139,7 @@ function publicReceipt(receipt) {
 function addStyle(root) {
   const style = document.createElement('style');
   style.dataset.openconsentStyle = '';
-  style.textContent = styles;
+  style.textContent = styles + catalogStyles;
   root.append(style);
 }
 
@@ -159,8 +161,11 @@ function createView(client, options) {
   let host = null;
   let banner = null;
   let backdrop = null;
+  let trigger = null;
   let settingsOpen = false;
   let previouslyFocused = null;
+  let activeTab = 'consent';
+  let draftChoices = null;
   const locale = messages[options.locale] ? options.locale : 'en';
   const t = messages[locale];
 
@@ -174,6 +179,11 @@ function createView(client, options) {
     host.dataset.openconsentRoot = '';
     addStyle(host);
     container.append(host);
+    if (options.banner?.privacyTrigger !== false) {
+      trigger = button(t.trigger, 'oc-privacy-trigger', () => showSettings());
+      trigger.setAttribute('aria-label', t.trigger);
+      host.append(trigger);
+    }
     render();
   }
 
@@ -205,41 +215,61 @@ function createView(client, options) {
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('aria-labelledby', 'oc-dialog-title');
-    dialog.innerHTML = `<div class="oc-dialog-head"><div><h2 id="oc-dialog-title">${escapeHtml(t.dialogTitle)}</h2><p class="oc-dialog-intro">${escapeHtml(t.dialogText)}</p></div></div><div class="oc-purposes"></div><div class="oc-dialog-footer"></div>`;
+    dialog.innerHTML = `<div class="oc-dialog-head"><div><h2 id="oc-dialog-title">${escapeHtml(t.dialogTitle)}</h2><p class="oc-dialog-intro">${escapeHtml(t.dialogText)}</p></div></div><div class="oc-tabs" role="tablist"></div><div class="oc-tabpanel" role="tabpanel"></div><div class="oc-dialog-footer"></div>`;
     const close = button('×', 'oc-icon-button', hideSettings);
     close.setAttribute('aria-label', t.close);
     dialog.querySelector('.oc-dialog-head').append(close);
-    const purposeList = dialog.querySelector('.oc-purposes');
+    const tabs = dialog.querySelector('.oc-tabs');
+    for (const [id, label] of [['consent', t.consent], ['details', t.details], ['about', t.about]]) {
+      const tab = button(label, 'oc-tab', () => { activeTab = id; renderDialog(); });
+      tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(activeTab === id)); tabs.append(tab);
+    }
+    const panel = dialog.querySelector('.oc-tabpanel');
+    const catalog = client.getCatalog();
     const snapshot = client.getSnapshot();
-    for (const purpose of client.policy.purposes) {
-      const [name, description] = purposeCopy(purpose, locale);
-      const row = document.createElement('div');
-      row.className = 'oc-purpose';
-      const copy = document.createElement('div');
-      copy.innerHTML = `<strong>${escapeHtml(name)}</strong><p>${escapeHtml(description)}</p>`;
-      row.append(copy);
-      if (!purpose.optional || purpose.legalBasis !== 'consent') {
-        const required = document.createElement('span');
-        required.className = 'oc-status';
-        required.textContent = t.required;
-        row.append(required);
-      } else {
-        const label = document.createElement('label');
-        label.className = 'oc-switch';
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.name = purpose.id;
-        input.checked = snapshot.choices[purpose.id] === 'granted';
-        input.disabled = isGpcPurpose(purpose, snapshot.signals.gpc);
-        input.setAttribute('aria-label', name);
-        if (input.disabled) {
-          input.checked = false;
-          label.title = t.gpc;
+    if (!draftChoices) draftChoices = Object.fromEntries(optionalPurposes(client.policy).map((purpose) => [purpose.id, snapshot.choices[purpose.id] === 'granted' ? 'granted' : 'denied']));
+    if (activeTab === 'consent') {
+      const list = document.createElement('div'); list.className = 'oc-catalog-list';
+      for (const category of catalog.categories) {
+        const row = document.createElement('div'); row.className = 'oc-catalog-row';
+        const head = document.createElement('div'); head.className = 'oc-catalog-row-head';
+        const copy = document.createElement('div'); copy.innerHTML = `<strong>${escapeHtml(category.label)}</strong>${category.description ? `<p>${escapeHtml(category.description)}</p>` : ''}`; head.append(copy);
+        const purposes = category.purposeIds.map((id) => client.policy.purposes.find((purpose) => purpose.id === id)).filter(Boolean);
+        const optional = purposes.filter((purpose) => purpose.optional && purpose.legalBasis === 'consent');
+        if (category.required || !optional.length) { const badge = document.createElement('span'); badge.className = 'oc-badge'; badge.textContent = t.required; head.append(badge); }
+        else {
+          const label = document.createElement('label'); label.className = 'oc-switch'; const input = document.createElement('input'); input.type = 'checkbox'; input.name = `category:${category.id}`;
+          input.checked = optional.every((purpose) => draftChoices[purpose.id] === 'granted' && !isGpcPurpose(purpose, snapshot.signals.gpc)); input.indeterminate = optional.some((purpose) => draftChoices[purpose.id] === 'granted') && !input.checked; input.setAttribute('aria-label', category.label);
+          input.addEventListener('change', () => { for (const purpose of optional) draftChoices[purpose.id] = input.checked && !isGpcPurpose(purpose, snapshot.signals.gpc) ? 'granted' : 'denied'; renderDialog(); }); label.append(input, document.createElement('span')); head.append(label);
         }
-        label.append(input, document.createElement('span'));
-        row.append(label);
+        row.append(head);
+        for (const purpose of purposes) {
+          const [name, description] = purposeCopy(purpose, locale); const purposeRow = document.createElement('div'); purposeRow.className = 'oc-catalog-row-head oc-purpose-detail';
+          const purposeCopyNode = document.createElement('div'); purposeCopyNode.innerHTML = `<small>${escapeHtml(name)}</small>${description ? `<p>${escapeHtml(description)}</p>` : ''}`; purposeRow.append(purposeCopyNode);
+          if (!purpose.optional || purpose.legalBasis !== 'consent') { const badge = document.createElement('span'); badge.className = 'oc-badge'; badge.textContent = t.required; purposeRow.append(badge); }
+          else { const label = document.createElement('label'); label.className = 'oc-switch'; const input = document.createElement('input'); input.type = 'checkbox'; input.checked = draftChoices[purpose.id] === 'granted'; input.disabled = isGpcPurpose(purpose, snapshot.signals.gpc); input.setAttribute('aria-label', name); if (input.disabled) { input.checked = false; label.title = t.gpc; } input.addEventListener('change', () => { draftChoices[purpose.id] = input.checked ? 'granted' : 'denied'; }); label.append(input, document.createElement('span')); purposeRow.append(label); }
+          row.append(purposeRow);
+        }
+        list.append(row);
       }
-      purposeList.append(row);
+      panel.append(list);
+    } else if (activeTab === 'details') {
+      const list = document.createElement('div'); list.className = 'oc-catalog-list';
+      for (const category of catalog.categories) {
+        const row = document.createElement('div'); row.className = 'oc-catalog-row'; row.innerHTML = `<strong>${escapeHtml(category.label)}</strong>`;
+        for (const purposeId of category.purposeIds) {
+          const purpose = client.policy.purposes.find((entry) => entry.id === purposeId); if (!purpose) continue; const [purposeName] = purposeCopy(purpose, locale); const block = document.createElement('div'); block.className = 'oc-detail-tree'; block.innerHTML = `<small>${escapeHtml(purposeName)} · ${escapeHtml(purpose.legalBasis)}</small>`;
+          for (const service of catalog.services.filter((entry) => entry.categoryIds.includes(category.id) && entry.purposeIds.includes(purposeId))) { const vendor = catalog.vendors.find((entry) => entry.id === service.vendorId); const serviceLine = document.createElement('p'); serviceLine.innerHTML = `<b>${escapeHtml(service.name)}</b>${vendor ? ` · ${escapeHtml(t.providedBy)} ${escapeHtml(vendor.name)}` : ''}`; block.append(serviceLine); for (const tracker of catalog.trackers.filter((entry) => service.trackerIds.includes(entry.id) && entry.purposeIds.includes(purposeId))) { const trackerLine = document.createElement('small'); trackerLine.textContent = `↳ ${tracker.name} · ${tracker.kind}${tracker.firstParty ? ' · first party' : ' · third party'}${tracker.domain ? ` · ${tracker.domain}` : ''}${tracker.duration ? ` · ${tracker.duration}` : ''}`; block.append(trackerLine); } }
+          row.append(block);
+        }
+        list.append(row);
+      }
+      panel.append(list);
+    } else {
+      const about = document.createElement('div'); about.className = 'oc-catalog-row';
+      const privacyUrl = options.banner?.privacyPolicyUrl || catalog.privacyPolicyUrl;
+      about.innerHTML = `<strong>${escapeHtml(catalog.projectId)}</strong><p>${escapeHtml(t.notice)}: ${escapeHtml(catalog.noticeVersion)}</p>${catalog.contact ? `<p>${escapeHtml(t.contact)}: ${escapeHtml(catalog.contact)}</p>` : ''}<p>${escapeHtml(t.gpcStatus)}: ${snapshot.signals.gpc ? 'ON' : 'OFF'}</p><p>${escapeHtml(t.withdraw)}</p>${privacyUrl ? `<p><a href="${escapeHtml(privacyUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t.privacy)}</a></p>` : ''}<div class="oc-meta"><span>Policy ${escapeHtml(catalog.policyVersion)}</span>${catalog.updatedAt ? `<span>${escapeHtml(t.lastUpdated)}: ${escapeHtml(catalog.updatedAt)}</span>` : ''}<span>${catalog.services.length} ${escapeHtml(t.services.toLowerCase())}</span><span>${catalog.trackers.length} ${escapeHtml(t.trackers.toLowerCase())}</span></div>`;
+      panel.append(about);
     }
     const footer = dialog.querySelector('.oc-dialog-footer');
     if (options.banner?.privacyPolicyUrl) {
@@ -251,12 +281,7 @@ function createView(client, options) {
       footer.append(link);
     } else footer.append(document.createElement('span'));
     footer.append(button(t.save, 'oc-button oc-primary', () => {
-      const choices = {};
-      for (const purpose of optionalPurposes(client.policy)) {
-        const input = dialog.querySelector(`input[name="${cssEscape(purpose.id)}"]`);
-        choices[purpose.id] = input?.checked && !input.disabled ? 'granted' : 'denied';
-      }
-      client.savePreferences(choices, 'preference-center');
+      if (Object.keys(draftChoices).length) client.savePreferences(draftChoices, 'preference-center');
       hideSettings();
     }));
     backdrop.append(dialog);
@@ -274,21 +299,26 @@ function createView(client, options) {
     mount();
     if (!banner) renderBanner();
     banner.classList.remove('oc-hidden');
+    trigger?.classList.add('oc-hidden');
   }
 
   function hide() {
     banner?.classList.add('oc-hidden');
+    trigger?.classList.remove('oc-hidden');
   }
 
   function showSettings() {
     mount();
     previouslyFocused = document.activeElement;
     settingsOpen = true;
+    activeTab = 'consent';
+    draftChoices = null;
     renderDialog();
   }
 
   function hideSettings() {
     settingsOpen = false;
+    draftChoices = null;
     backdrop?.remove();
     backdrop = null;
     if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
@@ -312,7 +342,7 @@ function createView(client, options) {
     showSettings,
     hideSettings,
     refresh() { if (settingsOpen) renderDialog(); },
-    destroy() { backdrop?.remove(); host?.remove(); host = banner = backdrop = null; }
+    destroy() { backdrop?.remove(); host?.remove(); host = banner = backdrop = trigger = null; }
   };
 }
 
@@ -336,6 +366,7 @@ function cssEscape(value) {
 }
 
 function createManagedScripts(runtime) {
+  const catalog = runtime.getCatalog();
   const records = new Map();
   let observer = null;
   let stopped = false;
@@ -347,8 +378,24 @@ function createManagedScripts(runtime) {
     }
   }
 
-  function allowed(purposeId) {
-    return runtime.evaluate(purposeId).outcome === 'allow';
+  function requirements(source) {
+    const serviceId = source.dataset.openconsentService;
+    const purposeId = source.dataset.openconsentPurpose;
+    if (serviceId) {
+      const service = catalog.services.find((entry) => entry.id === serviceId);
+      if (!service) { source.dataset.openconsentError = 'unknown-service'; return null; }
+      if (purposeId && !service.purposeIds.includes(purposeId)) { source.dataset.openconsentError = 'service-purpose-mismatch'; return null; }
+      delete source.dataset.openconsentError;
+      return purposeId ? [purposeId] : service.purposeIds;
+    }
+    if (purposeId) { delete source.dataset.openconsentError; return [purposeId]; }
+    source.dataset.openconsentError = 'missing-service-or-purpose';
+    return null;
+  }
+
+  function allowed(source) {
+    const purposeIds = requirements(source);
+    return Boolean(purposeIds?.length) && purposeIds.every((purposeId) => runtime.evaluate(purposeId).outcome === 'allow');
   }
 
   async function activate(record) {
@@ -379,15 +426,17 @@ function createManagedScripts(runtime) {
         return;
       }
     }
-    if (stopped || record.generation !== activationGeneration || !record.source.isConnected || !allowed(record.source.dataset.openconsentPurpose)) {
+    if (stopped || record.generation !== activationGeneration || !record.source.isConnected || !allowed(record.source)) {
       if (record.generation === activationGeneration) record.controller = null;
       return;
     }
     const active = document.createElement('script');
     for (const { name, value } of record.source.attributes) {
-      if (!['type', 'data-openconsent-src', 'data-openconsent-purpose'].includes(name)) active.setAttribute(name, value);
+      if (!['type', 'data-openconsent-src', 'data-openconsent-purpose', 'data-openconsent-service'].includes(name)) active.setAttribute(name, value);
     }
-    active.dataset.openconsentActivated = record.source.dataset.openconsentPurpose;
+    active.dataset.openconsentActivated = record.source.dataset.openconsentService || record.source.dataset.openconsentPurpose;
+    if (record.source.dataset.openconsentService) active.dataset.openconsentActivatedService = record.source.dataset.openconsentService;
+    if (record.source.dataset.openconsentPurpose) active.dataset.openconsentActivatedPurpose = record.source.dataset.openconsentPurpose;
     active.type = record.source.dataset.openconsentType || 'text/javascript';
     if (record.source.dataset.openconsentIntegrity) active.integrity = record.source.dataset.openconsentIntegrity;
     if (record.source.dataset.openconsentCrossorigin) active.crossOrigin = record.source.dataset.openconsentCrossorigin;
@@ -418,8 +467,7 @@ function createManagedScripts(runtime) {
         records.delete(source);
         continue;
       }
-      const purposeId = record.source.dataset.openconsentPurpose;
-      if (allowed(purposeId)) void activate(record);
+      if (allowed(record.source)) void activate(record);
       else deactivate(record);
     }
   }
@@ -438,105 +486,13 @@ function createManagedScripts(runtime) {
   };
 }
 
-function ensureGtag() {
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = window.gtag || function gtag() { window.dataLayer.push(arguments); };
-  return window.gtag;
-}
-
-function clearGoogleCookies() {
-  for (const part of document.cookie.split(';')) {
-    const name = part.split('=')[0]?.trim();
-    if (!name || !GOOGLE_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix))) continue;
-    const hostParts = location.hostname.split('.');
-    const domains = ['', location.hostname, `.${location.hostname}`];
-    if (hostParts.length > 2) domains.push(`.${hostParts.slice(-2).join('.')}`);
-    for (const domain of new Set(domains)) {
-      document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax${domain ? `; domain=${domain}` : ''}`;
-    }
-  }
-}
-
-function createGoogleIntegration(runtime, integrations = {}) {
-  const analytics = integrations.ga4;
-  const ads = integrations.googleAds;
-  if (!analytics && !ads) return { reconcile() {}, destroy() {} };
-
-  const gtag = ensureGtag();
-  const denied = {
-    ad_storage: 'denied',
-    analytics_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    wait_for_update: 500
-  };
-  gtag('consent', 'default', denied);
-  gtag('set', 'ads_data_redaction', true);
-  let loader = null;
-  let lastPermissions = { analyticsAllowed: false, adsAllowed: false };
-  let configuredLoader = null;
-
-  function isAllowed(purposeId) {
-    return runtime.evaluate(purposeId).outcome === 'allow';
-  }
-
-  function reconcile() {
-    const analyticsAllowed = Boolean(analytics && isAllowed(analytics.purposeId || 'optional-analytics'));
-    const adsAllowed = Boolean(ads && isAllowed(ads.purposeId || 'personalized-ads'));
-    const changed = analyticsAllowed !== lastPermissions.analyticsAllowed || adsAllowed !== lastPermissions.adsAllowed;
-    if (changed) {
-      gtag('consent', 'update', {
-        analytics_storage: analyticsAllowed ? 'granted' : 'denied',
-        ad_storage: adsAllowed ? 'granted' : 'denied',
-        ad_user_data: adsAllowed ? 'granted' : 'denied',
-        ad_personalization: adsAllowed ? 'granted' : 'denied'
-      });
-    }
-    if (!analyticsAllowed && !adsAllowed) {
-      loader?.remove();
-      loader = null;
-      configuredLoader = null;
-      clearGoogleCookies();
-      lastPermissions = { analyticsAllowed, adsAllowed };
-      return;
-    }
-    if (!loader) {
-      loader = document.createElement('script');
-      loader.async = true;
-      loader.dataset.openconsentGoogle = '';
-      const primaryId = analyticsAllowed ? analytics.measurementId : ads.tagId;
-      loader.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(primaryId)}`;
-      document.head.append(loader);
-    }
-    if (configuredLoader !== loader) {
-      gtag('js', new Date());
-      if (analyticsAllowed) gtag('config', analytics.measurementId);
-      if (adsAllowed) gtag('config', ads.tagId);
-      configuredLoader = loader;
-    } else {
-      if (analyticsAllowed && !lastPermissions.analyticsAllowed) gtag('config', analytics.measurementId);
-      if (adsAllowed && !lastPermissions.adsAllowed) gtag('config', ads.tagId);
-    }
-    lastPermissions = { analyticsAllowed, adsAllowed };
-  }
-
-  return {
-    reconcile,
-    destroy() {
-      gtag('consent', 'update', { analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
-      loader?.remove();
-      clearGoogleCookies();
-    }
-  };
-}
-
 function createClient(options, policy) {
   const storage = safeStorage();
   const storageKey = storageKeyFor(options, policy);
   const persisted = readPreference(storage, storageKey, policy);
   const gpc = safeGpc();
-  const runtime = createOpenConsent({ policy, subjectRef: options.subjectRef || 'browser', gpc });
-  let hasSavedPreference = Boolean(persisted) && optionalPurposes(policy).every(
+  const runtime = createOpenConsent({ policy, subjectRef: options.subjectRef || 'browser', gpc, locale: options.locale });
+  let hasSavedPreference = optionalPurposes(policy).length === 0 || Boolean(persisted) && optionalPurposes(policy).every(
     (purpose) => ['granted', 'denied'].includes(persisted.choices[purpose.id])
   );
   let destroyed = false;
@@ -552,7 +508,6 @@ function createClient(options, policy) {
 
   let view;
   let managedScripts;
-  let google;
 
   function snapshot() {
     return {
@@ -567,7 +522,6 @@ function createClient(options, policy) {
     for (const listener of listeners) listener(current);
     view?.refresh();
     managedScripts?.reconcile();
-    google?.reconcile();
     document.dispatchEvent(new CustomEvent(CHANGE_EVENT, { bubbles: true, detail: { snapshot: current, receipt } }));
   }
 
@@ -617,6 +571,7 @@ function createClient(options, policy) {
 
   const client = {
     policy,
+    getCatalog: () => runtime.getCatalog(),
     getSnapshot: snapshot,
     subscribe(listener) {
       if (typeof listener !== 'function') throw new TypeError('listener must be a function');
@@ -641,6 +596,14 @@ function createClient(options, policy) {
     savePreferences(choices, source = 'preference-center') {
       return commitChoices(choices, 'save_preferences', source);
     },
+    setCategory(categoryId, choice, source = 'api') {
+      const rawReceipt = runtime.setCategory(categoryId, choice, source);
+      return finalize(rawReceipt, choice === 'granted' ? 'save' : 'withdraw', source);
+    },
+    saveCategoryPreferences(choices, source = 'preference-center') {
+      const rawReceipt = runtime.saveCategoryPreferences(choices, source);
+      return finalize(rawReceipt, 'save_preferences', source);
+    },
     reset() {
       if (destroyed) return;
       runtime.reset();
@@ -654,7 +617,6 @@ function createClient(options, policy) {
       if (destroyed) return;
       destroyed = true;
       managedScripts?.destroy();
-      google?.destroy();
       view?.destroy();
       listeners.clear();
       if (activeClient === client) { activeClient = null; activeFingerprint = null; }
@@ -663,14 +625,12 @@ function createClient(options, policy) {
 
   view = createView(client, options);
   managedScripts = createManagedScripts(runtime);
-  google = createGoogleIntegration(runtime, options.integrations);
   suppressPublish = false;
 
   const start = () => {
     if (destroyed) return;
     view.mount();
     managedScripts.reconcile();
-    google.reconcile();
     const current = snapshot();
     if (options.autoShow !== false && !current.hasSavedPreference) view.show();
   };
@@ -692,12 +652,11 @@ export function init(options) {
       theme: options.banner?.theme || 'auto',
       privacyPolicyUrl: options.banner?.privacyPolicyUrl || null,
       container: typeof options.banner?.container === 'string' ? options.banner.container : null
-    },
-    integrations: options.integrations || {}
+    }
   });
   if (activeClient && activeFingerprint === fingerprint) return activeClient;
   activeClient?.destroy();
-  activeClient = createClient({ locale: 'en', autoShow: true, banner: {}, integrations: {}, ...options }, policy);
+  activeClient = createClient({ locale: 'en', autoShow: true, banner: {}, ...options }, policy);
   activeFingerprint = fingerprint;
   return activeClient;
 }

@@ -1,6 +1,6 @@
 # SDK integration guide
 
-openConsent `0.3.0-beta.1` uses one purpose-based decision model across Plain HTML, React, Vue, Express, and Spring Boot. The browser SDK owns the Banner, Preference Center, stored choices, explicit managed tags, Global Privacy Control (GPC), and Google Consent Mode updates. Server adapters evaluate the same purpose IDs against request and receipt data supplied by the application.
+openConsent `0.4.0-beta.1` uses one purpose-based decision model across Plain HTML, React, Vue, Express, and Spring Boot. The browser SDK owns the Banner, Preference Center, stored choices, explicit managed tags, Global Privacy Control (GPC), and purpose-level callbacks. Server adapters evaluate the same purpose IDs against request and receipt data supplied by the application.
 
 ## Choose an integration
 
@@ -34,42 +34,120 @@ The configuration URL returns the same object accepted by `OpenConsent.init`:
   "locale": "en",
   "policy": {
     "projectId": "my-app",
-    "policyVersion": "2026-09-01",
+    "policyVersion": "0.4.0-beta.1",
     "noticeVersion": "2026-09-01",
     "manifestDigest": "sha256:replace-with-your-policy-digest",
+    "categories": [
+      {
+        "id": "necessary",
+        "label": { "en": "Necessary", "zh": "必要" },
+        "required": true,
+        "order": 1
+      },
+      {
+        "id": "analytics",
+        "label": { "en": "Analytics", "zh": "分析" },
+        "required": false,
+        "order": 2
+      },
+      {
+        "id": "marketing",
+        "label": { "en": "Marketing", "zh": "营销" },
+        "required": false,
+        "order": 3
+      }
+    ],
     "purposes": [
       {
         "id": "required",
+        "categoryId": "necessary",
         "activityId": "site-operation",
         "legalBasis": "contract",
-        "optional": false
+        "optional": false,
+        "label": { "en": "Required operation", "zh": "必要运行" },
+        "description": { "en": "Operates the application and stores the privacy choice.", "zh": "运行应用并保存隐私选择。" }
       },
       {
         "id": "optional-analytics",
+        "categoryId": "analytics",
         "activityId": "product-analytics",
         "legalBasis": "consent",
-        "optional": true
+        "optional": true,
+        "label": { "en": "Product analytics", "zh": "产品分析" },
+        "description": { "en": "Measures product usage after consent.", "zh": "仅在同意后衡量产品使用情况。" }
       },
       {
         "id": "personalized-ads",
+        "categoryId": "marketing",
         "activityId": "ad-personalization",
         "legalBasis": "consent",
         "optional": true,
         "sale": true,
-        "sharing": true
+        "sharing": true,
+        "label": { "en": "Personalized advertising", "zh": "个性化广告" },
+        "description": { "en": "Supports advertising personalization after consent.", "zh": "仅在同意后支持广告个性化。" }
+      }
+    ],
+    "vendors": [
+      {
+        "id": "my-app",
+        "name": "My App",
+        "privacyPolicyUrl": "https://example.com/privacy"
+      },
+      {
+        "id": "analytics-vendor",
+        "name": "Example Analytics Vendor",
+        "privacyPolicyUrl": "https://example.com/vendor-privacy"
+      }
+    ],
+    "services": [
+      {
+        "id": "consent-storage",
+        "name": "Consent preference storage",
+        "vendorId": "my-app",
+        "purposeIds": ["required"],
+        "description": "Stores the selected policy version and purposes."
+      },
+      {
+        "id": "product-analytics",
+        "name": "Product analytics",
+        "vendorId": "analytics-vendor",
+        "purposeIds": ["optional-analytics"],
+        "description": "Measures product usage after consent."
+      }
+    ],
+    "trackers": [
+      {
+        "id": "preference-record",
+        "name": "openconsent:my-app:preferences",
+        "kind": "local-storage",
+        "serviceId": "consent-storage",
+        "purposeIds": ["required"],
+        "duration": "Until policy change or reset",
+        "firstParty": true,
+        "description": "Stores versioned privacy choices."
+      },
+      {
+        "id": "analytics-script",
+        "name": "analytics.js",
+        "kind": "script",
+        "serviceId": "product-analytics",
+        "purposeIds": ["optional-analytics"],
+        "domain": "analytics.example.com",
+        "duration": "Request",
+        "firstParty": false,
+        "description": "Loads the declared analytics script after consent."
       }
     ]
   },
   "banner": {
     "position": "bottom",
     "theme": "auto"
-  },
-  "integrations": {
-    "ga4": { "measurementId": "G-XXXXXXX" },
-    "googleAds": { "tagId": "AW-XXXXXXX" }
   }
 }
 ```
+
+The catalog fields are direct children of `policy`: `categories`, `purposes`, `vendors`, `services`, and `trackers`. Categories do not duplicate purpose IDs, services do not carry a category ID, and every tracker declares `kind`, `purposeIds`, and `firstParty`. See [`examples/openconsent.web.json`](../examples/openconsent.web.json) for the complete bilingual example.
 
 Register a script as inert markup so the browser cannot request it before a decision:
 
@@ -84,14 +162,14 @@ Register a script as inert markup so the browser cannot request it before a deci
 
 Only known purpose IDs from the active policy can activate a managed script. Unknown or stale purposes remain blocked.
 
-This official hosted build is available before the npm launch. Once `@openconsent/web@0.3.0-beta.1` is published, the equivalent jsDelivr URL will be `https://cdn.jsdelivr.net/npm/@openconsent/web@0.3.0-beta.1/dist/openconsent.min.js`.
+This official hosted build is available before the npm launch. Once `@openconsent/web@0.4.0-beta.1` is published, the equivalent jsDelivr URL will be `https://cdn.jsdelivr.net/npm/@openconsent/web@0.4.0-beta.1/dist/openconsent.min.js`.
 
-For external managed scripts, the vendor endpoint must permit a CORS fetch (and satisfy your CSP), because openConsent downloads the code first and checks that consent is still valid immediately before execution. Google tags use the dedicated integration instead.
+For external managed scripts, the vendor endpoint must permit a CORS fetch and satisfy your CSP, because openConsent downloads the code first and checks that consent is still valid immediately before execution.
 
 ## Browser API
 
 ```bash
-pnpm add @openconsent/web@0.3.0-beta.1
+pnpm add @openconsent/web@0.4.0-beta.1
 ```
 
 ```js
@@ -101,11 +179,7 @@ const consent = init({
   projectId: 'my-app',
   locale: 'en',
   policy,
-  banner: { position: 'bottom', theme: 'auto' },
-  integrations: {
-    ga4: { measurementId: 'G-XXXXXXX' },
-    googleAds: { tagId: 'AW-XXXXXXX' }
-  },
+  banner: { position: 'bottom', theme: 'auto', privacyPolicyUrl: '/privacy' },
   onPreferenceChange(receipt) {
     navigator.sendBeacon(
       '/api/privacy/preferences',
@@ -127,25 +201,25 @@ The browser SDK:
 
 The receipt is a transport object, not audit proof. A production backend must validate its schema, bind it to an authenticated or pseudonymous subject where appropriate, store it under access and retention controls, and record server-side timestamps and policy versions.
 
-## Google Analytics 4 and Google Ads
+## Google Analytics 4 and Google Ads website example
 
-Google Consent Mode must be established before a Google tag can run. openConsent sets default-denied storage states first, loads the configured tag only after the matching purpose is granted, and sends an update when the choice changes.
+Google support is application example code in `apps/demo`. It is not bundled into `@openconsent/web` and is not part of the SDK API. The example maps website purposes to Google Consent Mode fields:
 
 | Integration | Purpose | Consent Mode fields |
 | --- | --- | --- |
 | GA4 | `optional-analytics` | `analytics_storage` |
 | Google Ads | `personalized-ads` | `ad_storage`, `ad_user_data`, `ad_personalization` |
 
-The recommended order is:
+An application adapter should:
 
-1. Load openConsent before Google tags.
-2. Let openConsent establish denied Consent Mode defaults.
-3. Register the GA4 measurement ID and/or Google Ads tag ID in openConsent configuration.
-4. Confirm that no `gtag.js` request occurs before the matching grant.
-5. Test accept, purpose-only grant, reject, and withdrawal in the browser network panel.
-6. Verify the account-side Google configuration and regional requirements.
+1. create the Google command queue and write denied defaults before loading a Google tag;
+2. subscribe to the openConsent client or `openconsent:change`;
+3. load `gtag.js` only when the application's matching purpose evaluates to `allow`;
+4. send denied updates when the purpose is withdrawn;
+5. test first visit, purpose-only grant, withdrawal, GPC, and command order;
+6. publish the resulting Google Cookies in the deployment's own Cookie declaration.
 
-Do not include a separate unconditional Google tag snippet. That would bypass the SDK and can send a request before the Banner decision. Google identifiers are public configuration values, but each deployment should still keep them in its environment or site config rather than in the reusable policy manifest.
+Do not add an unconditional Google snippet. That bypasses purpose control and can send a request before the visitor decides. Measurement IDs belong to application configuration, never the reusable openConsent policy. Follow [Google's Consent Mode guide](https://developers.google.com/tag-platform/security/guides/consent) and verify the account and regional configuration independently.
 
 ## Shared core
 
@@ -166,7 +240,7 @@ client.evaluate('personalized-ads'); // deny when mapped to sale/sharing
 ## React
 
 ```bash
-pnpm add @openconsent/react@0.3.0-beta.1 react
+pnpm add @openconsent/react@0.4.0-beta.1 react
 ```
 
 ```jsx
@@ -190,12 +264,12 @@ export function App() {
 
 `ConsentGate` prevents its child from mounting before an allowed decision. It cannot undo an earlier inline tag, preload, server event, or request created outside the gate.
 
-In a browser, the provider uses `@openconsent/web` by default, so stored preferences, managed scripts, GPC, and Google integrations use the same runtime as Plain HTML. Pass `runtime: 'memory'` only for SSR or isolated tests, or supply your own `client`.
+In a browser, the provider uses `@openconsent/web` by default, so stored preferences, managed scripts, GPC, and purpose callbacks use the same runtime as Plain HTML. Application-owned vendor adapters may subscribe to that client. Pass `runtime: 'memory'` only for SSR or isolated tests, or supply your own `client`.
 
 ## Vue 3
 
 ```bash
-pnpm add @openconsent/vue@0.3.0-beta.1 vue
+pnpm add @openconsent/vue@0.4.0-beta.1 vue
 ```
 
 ```js
@@ -218,7 +292,7 @@ The Vue plugin also selects the browser runtime by default and falls back to the
 ## Express
 
 ```bash
-pnpm add @openconsent/express@0.3.0-beta.1 @openconsent/core@0.3.0-beta.1 express
+pnpm add @openconsent/express@0.4.0-beta.1 @openconsent/core@0.4.0-beta.1 express
 ```
 
 ```js
@@ -274,14 +348,14 @@ Wire the evaluator to the authenticated subject and receipt repository before us
 
 ## Publishing and provenance
 
-JavaScript releases use a version tag such as `v0.3.0-beta.1`. The release workflow:
+JavaScript releases use a version tag such as `v0.4.0-beta.1`. The release workflow:
 
 1. installs the locked workspace;
 2. runs tests and package builds;
 3. checks every public package with `npm pack --dry-run`;
 4. publishes public packages with npm Trusted Publishing and provenance.
 
-Prerelease versions such as `0.3.0-beta.1` use the npm `beta` dist-tag; stable versions use `latest`.
+Prerelease versions such as `0.4.0-beta.1` use the npm `beta` dist-tag; stable versions use `latest`.
 
 Before creating a release tag, a maintainer must:
 
@@ -295,4 +369,4 @@ The workflow uses GitHub OIDC and does not require a long-lived npm token. npm s
 
 ## Conformance
 
-`packages/protocol/conformance.json` defines shared decision fixtures. Release checks cover default denial, saved-choice restoration, withdrawal, stale-policy failure, GPC override, unknown-purpose blocking, idempotence, Google command ordering, accessibility, and package contents as the implementation reaches the corresponding release gate.
+`packages/protocol/conformance.json` defines shared decision fixtures. Release checks cover default denial, saved-choice restoration, withdrawal, stale-policy failure, GPC override, unknown-purpose blocking, idempotence, accessibility, and package contents. Google command ordering is tested as official-website example behavior rather than SDK conformance.

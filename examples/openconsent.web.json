@@ -3,34 +3,121 @@
   "locale": "en",
   "policy": {
     "projectId": "my-app",
-    "policyVersion": "2026-09-01",
+    "policyVersion": "0.4.0-beta.1",
     "noticeVersion": "privacy-notice-1",
     "manifestDigest": "sha256:replace-with-your-policy-digest",
+    "updatedAt": "2026-09-01",
+    "privacyPolicyUrl": "https://example.com/privacy",
+    "categories": [
+      {
+        "id": "necessary",
+        "label": { "en": "Necessary", "zh": "必要" },
+        "description": { "en": "Required to operate the application.", "zh": "用于运行应用。" },
+        "required": true,
+        "order": 1
+      },
+      {
+        "id": "analytics",
+        "label": { "en": "Analytics", "zh": "分析" },
+        "description": { "en": "Measures product usage after consent.", "zh": "仅在同意后衡量产品使用情况。" },
+        "required": false,
+        "order": 2
+      },
+      {
+        "id": "marketing",
+        "label": { "en": "Marketing", "zh": "营销" },
+        "description": { "en": "Measures or personalizes advertising after consent.", "zh": "仅在同意后衡量广告或提供个性化。" },
+        "required": false,
+        "order": 3
+      }
+    ],
     "purposes": [
       {
-        "id": "essential",
+        "id": "site-operation",
+        "categoryId": "necessary",
         "activityId": "serve-application",
         "legalBasis": "legitimate-interest",
-        "optional": false
+        "optional": false,
+        "label": { "en": "Site operation", "zh": "网站运行" },
+        "description": { "en": "Operates the application and stores the privacy choice.", "zh": "运行应用并保存隐私选择。" }
       },
       {
         "id": "optional-analytics",
+        "categoryId": "analytics",
         "activityId": "product-analytics",
         "legalBasis": "consent",
-        "optional": true
+        "optional": true,
+        "label": { "en": "Product analytics", "zh": "产品分析" },
+        "description": { "en": "Measures product usage after consent.", "zh": "仅在同意后衡量产品使用情况。" }
       },
       {
         "id": "personalized-ads",
+        "categoryId": "marketing",
         "activityId": "advertising",
         "legalBasis": "consent",
         "optional": true,
         "sale": true,
-        "sharing": true
+        "sharing": true,
+        "label": { "en": "Personalized advertising", "zh": "个性化广告" },
+        "description": { "en": "Supports advertising personalization after consent.", "zh": "仅在同意后支持广告个性化。" }
+      }
+    ],
+    "vendors": [
+      {
+        "id": "my-app",
+        "name": "My App",
+        "privacyPolicyUrl": "https://example.com/privacy"
+      },
+      {
+        "id": "analytics-vendor",
+        "name": "Example Analytics Vendor",
+        "privacyPolicyUrl": "https://example.com/vendor-privacy"
+      }
+    ],
+    "services": [
+      {
+        "id": "consent-storage",
+        "name": { "en": "Consent preference storage", "zh": "同意偏好存储" },
+        "vendorId": "my-app",
+        "purposeIds": ["site-operation"],
+        "description": { "en": "Stores the selected policy version and purposes.", "zh": "保存选择的策略版本和用途。" }
+      },
+      {
+        "id": "product-analytics",
+        "name": { "en": "Product analytics", "zh": "产品分析" },
+        "vendorId": "analytics-vendor",
+        "purposeIds": ["optional-analytics"],
+        "description": { "en": "Measures product usage after consent.", "zh": "仅在同意后衡量产品使用情况。" }
+      }
+    ],
+    "trackers": [
+      {
+        "id": "openconsent-preferences",
+        "name": "openconsent:my-app:preferences",
+        "kind": "local-storage",
+        "serviceId": "consent-storage",
+        "purposeIds": ["site-operation"],
+        "domain": "First-party browser storage",
+        "duration": "Until policy change or reset",
+        "firstParty": true,
+        "description": { "en": "Stores versioned privacy choices.", "zh": "保存版本化隐私选择。" }
+      },
+      {
+        "id": "analytics-script",
+        "name": "analytics.js",
+        "kind": "script",
+        "serviceId": "product-analytics",
+        "purposeIds": ["optional-analytics"],
+        "domain": "analytics.example.com",
+        "duration": "Request",
+        "firstParty": false,
+        "description": { "en": "Loads the declared analytics script after consent.", "zh": "仅在同意后加载声明的分析脚本。" }
       }
     ]
   },
   "banner": {
     "position": "bottom",
-    "theme": "auto"
+    "theme": "auto",
+    "privacyPolicyUrl": "https://example.com/privacy"
   }
 }

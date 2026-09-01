@@ -1,6 +1,6 @@
 {
   "name": "@openconsent/express",
-  "version": "0.3.0-beta.1",
+  "version": "0.4.0-beta.1",
   "description": "Express middleware for openConsent decisions and GPC enforcement",
   "type": "module",
   "main": "./src/index.js",
@@ -16,11 +16,12 @@
   "files": ["src"],
   "sideEffects": false,
   "dependencies": {
-    "@openconsent/core": "workspace:*"
+    "@openconsent/core": "workspace:0.4.0-beta.1"
   },
   "peerDependencies": {
     "express": ">=4"
   },
+  "scripts": { "test": "node --test ./test/*.test.mjs" },
   "publishConfig": { "access": "public" },
   "engines": { "node": ">=18" },
   "license": "Apache-2.0",

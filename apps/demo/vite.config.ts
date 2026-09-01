@@ -32,6 +32,8 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         playground: resolve(__dirname, 'playground/index.html'),
         iife: resolve(__dirname, 'iife/index.html'),
+        roadmap: resolve(__dirname, 'roadmap/index.html'),
+        cookieDeclaration: resolve(__dirname, 'cookie-declaration/index.html'),
       },
     },
   },

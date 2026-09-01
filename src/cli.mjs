@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assess, loadPolicyPacks } from './core/check.mjs';
 import { makeAssessmentRecord, makeTransparencyCard } from './core/artifacts.mjs';
+import { assessWebCmp } from './core/web-cmp.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const [command = 'help', rawInput, ...rest] = process.argv.slice(2);
@@ -16,11 +17,12 @@ function option(name, fallback = null) {
 }
 
 function usage() {
-  console.log(`openConsent 0.1.0
+  console.log(`openConsent 0.4.0-beta.1
 
 Usage:
   openconsent init [path]
   openconsent check [manifest] [--json]
+                            [--profile web-cmp]
                             [--fail-on review]
   openconsent explain <control-id>
   openconsent transparency [manifest] [--out path]
@@ -78,7 +80,9 @@ async function main() {
 
   const input = inputArg ?? 'openconsent.json';
   const { bytes, manifest } = await loadManifest(input);
-  const assessment = await assess(manifest, bytes);
+  const profile = option('--profile');
+  if (profile && profile !== 'web-cmp') throw new Error(`Unknown check profile: ${profile}`);
+  const assessment = command === 'check' && profile === 'web-cmp' ? assessWebCmp(manifest) : await assess(manifest, bytes);
 
   if (command === 'verify') {
     const recordPath = args[0];

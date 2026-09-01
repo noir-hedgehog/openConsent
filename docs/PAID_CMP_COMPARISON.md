@@ -4,19 +4,19 @@ Vendor information was reviewed on 2026-08-31 against consentmanager's official 
 
 ## Does openConsent provide the same capability?
 
-No. openConsent `0.3.0-beta.1` covers the core integration needed by many small web applications: a Banner, Preference Center, explicit tag pre-blocking, stored versioned choices, withdrawal, GPC, Google Consent Mode, and framework adapters. It is free, open source, self-hosted, and its rules and tests are public.
+No. openConsent `0.4.0-beta.1` covers the core integration needed by many small web applications: a Banner, Preference Center, explicit tag pre-blocking, stored versioned choices, withdrawal, GPC, framework adapters, and public capability/technology declarations. It is free, open source, self-hosted, and its rules and tests are public.
 
 A paid CMP such as consentmanager also supplies a managed operational service: recurring website scanning, vendor and Cookie discovery, hosted configuration, audit records, reporting, standards integrations, multi-site administration, support, and plan-dependent legal or rights-request tooling. openConsent is not a drop-in replacement for those capabilities.
 
 ## Capability matrix
 
-| Capability | Paid CMP example | openConsent 0.3 beta |
+| Capability | Paid CMP example | openConsent 0.4 beta |
 | --- | --- | --- |
 | Banner and preference center | Hosted, configurable, multilingual service | Open-source English/Chinese UI integrated in the application |
 | First-visit optional blocking | Manual and automatic blocking options | Explicitly registered managed scripts fail closed; no universal discovery |
 | Saved choices and withdrawal | Managed consent service and audit trail | Versioned browser preferences and unsigned callback receipt; no authoritative hosted store |
 | GDPR and CCPA/CPRA | Jurisdiction templates and runtime flows | Purpose model, GPC override, public readiness rules; deployment applicability remains a human decision |
-| Google Analytics / Ads | Vendor templates and managed Consent Mode setup | Direct GA4/Ads configuration with denied defaults and grant/withdrawal updates |
+| Google Analytics / Ads | Vendor templates and managed Consent Mode setup | Official-site example adapter with denied defaults and grant/withdrawal updates; not bundled in the SDK |
 | Cookie, pixel, and vendor scanning | Recurring crawler and discovered-domain workflow | Not included |
 | IAB TCF and GPP | Available on eligible plans | Not included |
 | Mobile and additional platforms | Vendor-dependent SDKs | Plain HTML, React, Vue, Express, and Spring starter |
