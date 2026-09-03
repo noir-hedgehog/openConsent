@@ -48,8 +48,8 @@ jobs:
         env:
           VITE_BASE_PATH: /openConsent/
           # Repository Variables are public measurement identifiers, not secrets.
-          # Leave them unset to keep the public demo first-party-only.
-          VITE_GA_MEASUREMENT_ID: ${{ vars.OPENCONSENT_GA_MEASUREMENT_ID }}
+          # The official site's GA4 property is the fallback; a repository variable can override it.
+          VITE_GA_MEASUREMENT_ID: ${{ vars.OPENCONSENT_GA_MEASUREMENT_ID || 'G-5L28DZ1ZEW' }}
           VITE_GOOGLE_ADS_ID: ${{ vars.OPENCONSENT_GOOGLE_ADS_ID }}
       - run: node ./scripts/check-built-site.mjs ./apps/demo/dist /openConsent/
       - uses: actions/configure-pages@v5
