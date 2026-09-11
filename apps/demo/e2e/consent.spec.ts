@@ -125,6 +125,10 @@ test('official-site Google example writes denied defaults first, then gates conf
   await page.goto('./');
   expect(googleRequests).toEqual([]);
   const initial = await page.evaluate(() => (((window as Window & { dataLayer?: unknown[] }).dataLayer) ?? []).map(row => Array.from(row as ArrayLike<unknown>)));
+  // Array.from alone hides this regression: real gtag.js ignores Array commands.
+  expect(await page.evaluate(() => ((window as Window & { dataLayer?: unknown[] }).dataLayer ?? []).map(row => Object.prototype.toString.call(row))))
+    .toEqual(['[object Arguments]', '[object Arguments]']);
+  expect(await page.evaluate(() => (window as Window & { 'ga-disable-G-TEST123'?: boolean })['ga-disable-G-TEST123'])).toBe(true);
   expect(initial[0]?.[0]).toBe('consent');
   expect(initial[0]?.[1]).toBe('default');
   expect(initial[0]?.[2]).toMatchObject({ analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
@@ -134,6 +138,7 @@ test('official-site Google example writes denied defaults first, then gates conf
   await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
   await expect.poll(() => googleRequests.length).toBe(1);
   expect(googleRequests[0]).toContain('G-TEST123');
+  expect(await page.evaluate(() => (window as Window & { 'ga-disable-G-TEST123'?: boolean })['ga-disable-G-TEST123'])).toBe(false);
 
   await page.getByRole('button', { name: 'Privacy settings', exact: true }).click();
   await setChoice(page, 'Marketing', true);
@@ -147,9 +152,20 @@ test('official-site Google example writes denied defaults first, then gates conf
   await page.waitForTimeout(50);
   expect(googleRequests).toHaveLength(1);
   const after = await page.evaluate(() => (((window as Window & { dataLayer?: unknown[] }).dataLayer) ?? []).map(row => Array.from(row as ArrayLike<unknown>)));
+  expect(await page.evaluate(() => (window as Window & { 'ga-disable-G-TEST123'?: boolean })['ga-disable-G-TEST123'])).toBe(true);
   const denied = after.filter(row => row[0] === 'consent' && row[1] === 'update').at(-1);
   expect(denied?.[2]).toMatchObject({ analytics_storage: 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
   await expect(page.getByText(/It never sends a fake conversion/)).toBeVisible();
+});
+
+test('Google load failures are shown instead of claiming the tag loaded', async ({ page }) => {
+  await page.route('https://www.googletagmanager.com/**', route => route.abort('failed'));
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Manage preferences', exact: true }).click();
+  await setChoice(page, 'Analytics', true);
+  await page.getByRole('button', { name: 'Save preferences', exact: true }).click();
+  await expect(page.getByText('Google script failed to load — check your network or blocker', { exact: true })).toBeVisible();
+  await expect(page.getByText('Google script loaded', { exact: true })).toHaveCount(0);
 });
 
 test('GPC locks sale and sharing purposes while analytics remains selectable', async ({ page, context }) => {

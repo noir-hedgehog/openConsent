@@ -13,7 +13,7 @@ export type GoogleBusinessStatus = {
   analyticsAllowed: boolean;
   adsMeasurementAllowed: boolean;
   adsPersonalizationAllowed: boolean;
-  loaderState: 'not-configured' | 'blocked' | 'loaded';
+  loaderState: 'not-configured' | 'blocked' | 'loading' | 'loaded' | 'error';
   commands: string[];
 };
 
@@ -23,6 +23,7 @@ declare global {
   interface Window {
     dataLayer?: GoogleCommand[];
     gtag?: (...args: unknown[]) => void;
+    [key: `ga-disable-${string}`]: boolean | undefined;
   }
 }
 
@@ -48,10 +49,14 @@ export function createGoogleBusinessExample(
   const commands: string[] = [];
   let loader: HTMLScriptElement | null = null;
   let configuredLoader: HTMLScriptElement | null = null;
+  let loaderState: GoogleBusinessStatus['loaderState'] = 'blocked';
   let last = { analytics: false, measurement: false, personalization: false };
 
   window.dataLayer = window.dataLayer || [];
-  window.gtag = window.gtag || function gtag(...args: unknown[]) { window.dataLayer?.push(args); };
+  // Google consumes gtag commands as Arguments objects, not rest-parameter arrays.
+  // eslint-disable-next-line prefer-rest-params -- Required by the Google tag command protocol.
+  window.gtag = window.gtag || function gtag() { window.dataLayer?.push(arguments); };
+  if (measurementId) window[`ga-disable-${measurementId}`] = true;
   const command = (...args: unknown[]) => {
     window.gtag?.(...args);
     commands.push(args.slice(0, 2).join(' · '));
@@ -75,7 +80,7 @@ export function createGoogleBusinessExample(
     analyticsAllowed: analytics,
     adsMeasurementAllowed: measurement,
     adsPersonalizationAllowed: personalization,
-    loaderState: !measurementId && !adsTagId ? 'not-configured' : loader ? 'loaded' : 'blocked',
+    loaderState: !measurementId && !adsTagId ? 'not-configured' : loaderState,
     commands: [...commands]
   });
 
@@ -84,6 +89,9 @@ export function createGoogleBusinessExample(
     const measurement = Boolean(adsTagId && allowed('ads-measurement'));
     const personalization = Boolean(adsTagId && allowed('ads-personalization'));
     const changed = analytics !== last.analytics || measurement !== last.measurement || personalization !== last.personalization;
+
+    // Removing the script element cannot stop code already executed by Google.
+    if (measurementId) window[`ga-disable-${measurementId}`] = !analytics;
 
     if (changed) {
       command('consent', 'update', {
@@ -98,6 +106,7 @@ export function createGoogleBusinessExample(
       loader?.remove();
       loader = null;
       configuredLoader = null;
+      loaderState = 'blocked';
       clearKnownGoogleCookies();
       last = { analytics, measurement, personalization };
       emit(analytics, measurement, personalization);
@@ -106,6 +115,18 @@ export function createGoogleBusinessExample(
 
     if (!loader) {
       loader = document.createElement('script');
+      loaderState = 'loading';
+      const currentLoader = loader;
+      loader.onload = () => {
+        if (loader !== currentLoader) return;
+        loaderState = 'loaded';
+        emit(last.analytics, last.measurement, last.personalization);
+      };
+      loader.onerror = () => {
+        if (loader !== currentLoader) return;
+        loaderState = 'error';
+        emit(last.analytics, last.measurement, last.personalization);
+      };
       loader.async = true;
       loader.dataset.openconsentBusinessExample = 'google';
       loader.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(analytics ? measurementId : adsTagId)}`;
@@ -134,6 +155,7 @@ export function createGoogleBusinessExample(
   return {
     destroy() {
       unsubscribe();
+      if (measurementId) window[`ga-disable-${measurementId}`] = true;
       command('consent', 'update', {
         analytics_storage: 'denied',
         ad_storage: 'denied',
@@ -141,6 +163,7 @@ export function createGoogleBusinessExample(
         ad_personalization: 'denied'
       });
       loader?.remove();
+      loader = null;
       clearKnownGoogleCookies();
     }
   };
